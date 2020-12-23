@@ -28,7 +28,7 @@
             Edit String/en-US/Resources.resw: Add a menu item title for each page
             -->
             <winui:NavigationViewItem x:Uid="Shell_Main" Icon="Document" helpers:NavHelper.NavigateTo="views:MainPage" />
-            <winui:NavigationViewItem x:Uid="Shell_Camera" Icon="Document" helpers:NavHelper.NavigateTo="views:CameraPage" />
+            <!--     <winui:NavigationViewItem x:Uid="Shell_Camera" Icon="Document" helpers:NavHelper.NavigateTo="views:CameraPage" />-->
         </winui:NavigationView.MenuItems>
         <i:Interaction.Behaviors>
             <behaviors:NavigationViewHeaderBehavior
