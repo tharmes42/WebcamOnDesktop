@@ -14,6 +14,9 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using System.Runtime.CompilerServices;
+using Windows.UI.ViewManagement;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=234238 dokumentiert.
 
@@ -34,13 +37,27 @@ namespace WebcamOnDesktop.Views
             Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
             cameraControl.CameraSelected = (string)localSettings?.Values["cameraSelected"];
             await cameraControl.InitializeCameraAsync();
+           
+            if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+            {
+                //bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
 
+                ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+                compactOptions.CustomSize = new Windows.Foundation.Size(320, 200);
+                compactOptions.ViewSizePreference = ViewSizePreference.UseNone;
+                bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
+                //compactOverlayButton.Visibility = Visibility.Collapsed;
+
+
+            }
+            
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
             await cameraControl.CleanupCameraAsync();
+            bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.Default);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -58,9 +75,25 @@ namespace WebcamOnDesktop.Views
 
         private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        private void cameraControl_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        private void CameraControl_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
 
+        }
+
+        private async void CompactOverlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+            {
+                //bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
+
+                ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+                compactOptions.CustomSize = new Windows.Foundation.Size(320, 200);
+                compactOptions.ViewSizePreference = ViewSizePreference.UseNone;
+                bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
+                compactOverlayButton.Visibility = Visibility.Collapsed;
+                
+
+            }
         }
     }
 }

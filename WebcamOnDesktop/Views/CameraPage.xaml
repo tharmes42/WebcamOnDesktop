@@ -11,9 +11,7 @@
     mc:Ignorable="d">
 
 
-    <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
-        <Grid
-            Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
+    <Grid x:Name="ContentArea" Margin="{StaticResource NoMargin}" >
             <!--
             The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
             Place your content here.
@@ -22,10 +20,10 @@
                 <!--<TextBlock x:Uid="Camera_Headline" Style="{ThemeResource SubtitleTextBlockStyle}" />-->
                 <controls:CameraControl x:Name="cameraControl" 
                                         x:Uid="CameraPage_CameraControl" 
-                                        Loaded="cameraControl_Loaded" />
+                                        Loaded="CameraControl_Loaded" />
+                <Button x:Name="compactOverlayButton" Content="Start Picture-in-Picture" Click="CompactOverlayButton_Click" Visibility="Collapsed" Margin="10" />
 
             </StackPanel>
-        </Grid>
     </Grid>
 
 </Page>

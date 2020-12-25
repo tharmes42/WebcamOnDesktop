@@ -32,4 +32,8 @@
     <!--Extra Extra Small size margins-->
     <Thickness x:Key="XXSmallTopMargin">0, 4, 0, 0</Thickness>
     <Thickness x:Key="XXSmallTopRightBottomMargin">0, 4, 4, 4</Thickness>
+    
+    
+    <!--Zero margin-->
+    <Thickness x:Key="NoMargin">0, 0, 0, 0</Thickness>
 </ResourceDictionary>

@@ -9,9 +9,8 @@
     xmlns:behaviors="using:WebcamOnDesktop.Behaviors"
     behaviors:NavigationViewHeaderBehavior.HeaderMode="Minimal"
     mc:Ignorable="d">
-    <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">  
-        <Grid
-            Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
+    <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}" >  
+        <Grid>
             <!--
                 The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
                 Place your content here.

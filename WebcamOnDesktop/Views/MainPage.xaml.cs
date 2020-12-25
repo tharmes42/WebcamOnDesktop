@@ -9,6 +9,7 @@ using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 using WebcamOnDesktop.Controls;
+using Windows.UI.ViewManagement;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -61,6 +62,7 @@ namespace WebcamOnDesktop.Views
             contacts2.Add(new Contact("Jane", "Doe", "XYZ Refrigerators"));
             contacts2.Add(new Contact("Santa", "Claus", "North Pole Toy Factory Inc."));
             */
+            
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)

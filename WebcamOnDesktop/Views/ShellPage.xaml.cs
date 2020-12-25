@@ -77,6 +77,14 @@ namespace WebcamOnDesktop.Views
                 return;
             }
 
+            if (e.SourcePageType == typeof(CameraPage))
+            {
+                //navigationView.Visibility = Visibility.Collapsed;
+                navigationView.IsPaneVisible = false;
+                Selected = GetSelectedItem(navigationView.MenuItems, e.SourcePageType);
+                return;
+            }
+
             var selectedItem = GetSelectedItem(navigationView.MenuItems, e.SourcePageType);
             if (selectedItem != null)
             {

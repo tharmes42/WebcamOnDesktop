@@ -7,43 +7,14 @@
     mc:Ignorable="d">
 
     <Grid>
-        <!--        <CaptureElement Name="PreviewControl" Stretch="UniformToFill" />-->
+        <!--Camera preview-->
+        <CaptureElement Name="PreviewControl" Stretch="UniformToFill" />
 
-
-
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            
-            <!--Camera preview-->
-            <CaptureElement Name="PreviewControl" Stretch="Uniform" Grid.Column="0"/>
-
-            <!--Error Message if any-->
-             <TextBlock x:Name="errorMessage" Grid.Column="1"
-                FontSize="18"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                TextWrapping="WrapWholeWords" />
-        </Grid>
-
-        <!--User input-->
-        <StackPanel Grid.Row="1">
-            <StackPanel Orientation="Horizontal">
-                <!-- <Button Name="GetPreviewFrameButton" Content="GetPreviewFrameAsync" Click="GetPreviewFrameButton_Click" Margin="10" IsEnabled="False"/>-->
-                <TextBlock Name="FrameInfoTextBlock" VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <CheckBox Name="ShowFrameCheckBox" Content="Show frame" Margin="2"/>
-                <CheckBox Name="GreenEffectCheckBox" Content="Green effect" Margin="2"/>
-            </StackPanel>
-         
-        </StackPanel>
+        <!--Error Message if any-->
+        <TextBlock x:Name="errorMessage" 
+        FontSize="18"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        TextWrapping="WrapWholeWords" />
     </Grid>
 </UserControl>
