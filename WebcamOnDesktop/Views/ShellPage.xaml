@@ -14,21 +14,23 @@
 
     <winui:NavigationView
         x:Name="navigationView"
-        IsBackButtonVisible="Visible"
+        IsBackButtonVisible="Collapsed" 
         IsBackEnabled="{x:Bind IsBackEnabled, Mode=OneWay}"
         SelectedItem="{x:Bind Selected, Mode=OneWay}"
         ItemInvoked="OnItemInvoked"
         IsSettingsVisible="True"
+        PaneDisplayMode="Top"
         Background="{ThemeResource SystemControlBackgroundAltHighBrush}">
         <winui:NavigationView.MenuItems>
             <!--
             TODO WTS: Change the symbols for each item as appropriate for your app
             More on Segoe UI Symbol icons: https://docs.microsoft.com/windows/uwp/style/segoe-ui-symbol-font
             Or to use an IconElement instead of a Symbol see https://github.com/Microsoft/WindowsTemplateStudio/blob/release/docs/UWP/projectTypes/navigationpane.md
+            https://docs.microsoft.com/uwp/api/windows.ui.xaml.controls.symbol
             Edit String/en-US/Resources.resw: Add a menu item title for each page
             -->
-            <winui:NavigationViewItem x:Uid="Shell_Main" Icon="Document" helpers:NavHelper.NavigateTo="views:MainPage" />
-            <!--     <winui:NavigationViewItem x:Uid="Shell_Camera" Icon="Document" helpers:NavHelper.NavigateTo="views:CameraPage" />-->
+            <winui:NavigationViewItem x:Uid="Shell_Main" Icon="Camera" helpers:NavHelper.NavigateTo="views:MainPage" />
+            <winui:NavigationViewItem x:Uid="Shell_Camera" Icon="Play" helpers:NavHelper.NavigateTo="views:CameraPage" />
         </winui:NavigationView.MenuItems>
         <i:Interaction.Behaviors>
             <behaviors:NavigationViewHeaderBehavior
