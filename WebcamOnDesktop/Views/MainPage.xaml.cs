@@ -43,6 +43,7 @@ namespace WebcamOnDesktop.Views
             /*if (CameraListView.Items.Count > 0)
                 CameraListView.SelectedIndex = 0;
             */
+            //save name of camera (this is used by target page CameraPage, note: is it dirty to use localSettings as alternative to a mvvm pattern?
             string cameraSelected = (string)localSettings?.Values["cameraSelected"];
             int cameraSelectedIndex = 0;
             for (int i=0; i<CameraListView.Items.Count; i++)
@@ -54,14 +55,7 @@ namespace WebcamOnDesktop.Views
                 }
             }
             CameraListView.SelectedIndex = cameraSelectedIndex;
-            //cameras = await CameraControl.GetCamerasAsync();
-            /*            CameraListView.ItemsSource = await Camera.GetCamerasAsync();
-                        cameras = await Camera.GetCamerasAsync();
-            */
-            /*contacts2.Add(new Contact("John", "Doe", "ABC Printers"));
-            contacts2.Add(new Contact("Jane", "Doe", "XYZ Refrigerators"));
-            contacts2.Add(new Contact("Santa", "Claus", "North Pole Toy Factory Inc."));
-            */
+
             
         }
 
@@ -69,6 +63,7 @@ namespace WebcamOnDesktop.Views
         {
             base.OnNavigatedFrom(e);
             Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            //preselect camera if it was previously selected
             localSettings.Values["cameraSelected"] =  CameraListView.SelectedItem?.ToString();
             
         }

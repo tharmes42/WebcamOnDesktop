@@ -47,8 +47,11 @@ namespace WebcamOnDesktop.Views
                 compactOptions.ViewSizePreference = ViewSizePreference.UseNone;
                 bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
                 //compactOverlayButton.Visibility = Visibility.Collapsed;
-
-
+                //use also titlebar space
+                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+                //make whole window dragable
+                Window.Current.SetTitleBar(ContentArea);
+                
             }
             
         }

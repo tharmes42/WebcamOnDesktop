@@ -12,10 +12,6 @@
 
 
     <Grid x:Name="ContentArea" Margin="{StaticResource NoMargin}" >
-            <!--
-            The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
-            Place your content here.
-        -->
             <StackPanel>
                 <!--<TextBlock x:Uid="Camera_Headline" Style="{ThemeResource SubtitleTextBlockStyle}" />-->
                 <controls:CameraControl x:Name="cameraControl" 
