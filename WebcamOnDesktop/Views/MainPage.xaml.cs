@@ -31,20 +31,44 @@ namespace WebcamOnDesktop.Views
             // Set focus so the first item of the listview has focus
             // instead of some item which is not visible on page load
             CameraListView.Focus(FocusState.Programmatic);
+            
         }
 
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             CameraListView.ItemsSource = await CameraControl.GetCamerasAsync();
+            Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            /*if (CameraListView.Items.Count > 0)
+                CameraListView.SelectedIndex = 0;
+            */
+            string cameraSelected = (string)localSettings?.Values["cameraSelected"];
+            int cameraSelectedIndex = 0;
+            for (int i=0; i<CameraListView.Items.Count; i++)
+            {
+                if (CameraListView.Items[i].ToString() == cameraSelected)
+                {
+                    cameraSelectedIndex = i;
+                    break;
+                }
+            }
+            CameraListView.SelectedIndex = cameraSelectedIndex;
             //cameras = await CameraControl.GetCamerasAsync();
-/*            CameraListView.ItemsSource = await Camera.GetCamerasAsync();
-            cameras = await Camera.GetCamerasAsync();
-*/
+            /*            CameraListView.ItemsSource = await Camera.GetCamerasAsync();
+                        cameras = await Camera.GetCamerasAsync();
+            */
             /*contacts2.Add(new Contact("John", "Doe", "ABC Printers"));
             contacts2.Add(new Contact("Jane", "Doe", "XYZ Refrigerators"));
             contacts2.Add(new Contact("Santa", "Claus", "North Pole Toy Factory Inc."));
             */
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            localSettings.Values["cameraSelected"] =  CameraListView.SelectedItem?.ToString();
+            
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

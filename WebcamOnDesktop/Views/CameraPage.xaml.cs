@@ -31,7 +31,10 @@ namespace WebcamOnDesktop.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            cameraControl.CameraSelected = (string)localSettings?.Values["cameraSelected"];
             await cameraControl.InitializeCameraAsync();
+
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)

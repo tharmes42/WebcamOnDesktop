@@ -41,6 +41,8 @@ namespace WebcamOnDesktop.Controls
         public static readonly DependencyProperty SwitchCameraButtonStyleProperty =
             DependencyProperty.Register("SwitchCameraButtonStyle", typeof(Style), typeof(CameraControl), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty CameraSelectedProperty =
+            DependencyProperty.Register("CameraSelected", typeof(string), typeof(CameraControl), new PropertyMetadata(null));
         // Rotation metadata to apply to the preview stream and recorded videos (MF_MT_VIDEO_ROTATION)
         // Reference:https://docs.microsoft.com/windows/uwp/audio-video-camera/handle-device-orientation-with-mediacapture
         private readonly Guid _rotationKey = new Guid("C380465D-2271-428C-9B83-ECEA3B4A85C1");
@@ -53,6 +55,7 @@ namespace WebcamOnDesktop.Controls
         private DisplayOrientations _displayOrientation = DisplayOrientations.Portrait;
         private DeviceInformationCollection _cameraDevices;
         private bool _capturing;
+
 
         public bool CanSwitch
         {
@@ -84,7 +87,11 @@ namespace WebcamOnDesktop.Controls
             set { SetValue(SwitchCameraButtonStyleProperty, value); }
         }
 
-
+        public string  CameraSelected
+        {
+            get { return (string)GetValue(CameraSelectedProperty); }
+            set { SetValue(CameraSelectedProperty, value); }
+        }
 
 
         public CameraControl()
@@ -108,9 +115,21 @@ namespace WebcamOnDesktop.Controls
                         throw new NotSupportedException();
                     }
 
+                    string cameraSelectedId = null;
+                    for (int i=0; i<_cameraDevices.Count; i++)
+                    {
+                        if (_cameraDevices[i].Name== CameraSelected)
+                        {
+                            cameraSelectedId = _cameraDevices[i]?.Id;
+                            break;
+                        }
+
+                    }
+
                     var device = _cameraDevices.FirstOrDefault(camera => camera.EnclosureLocation?.Panel == Panel);
 
-                    var cameraId = device?.Id ?? _cameraDevices.First().Id;
+                    //var cameraId = device?.Id ?? _cameraDevices.First().Id;
+                    var cameraId = cameraSelectedId ?? device?.Id;
 
                     await _mediaCapture.InitializeAsync(new MediaCaptureInitializationSettings { VideoDeviceId = cameraId });
 
@@ -213,6 +232,7 @@ namespace WebcamOnDesktop.Controls
             SwitchPanel();
         }
 
+        
         private async void CleanAndInitialize()
         {
             await Task.Run(async () => await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
