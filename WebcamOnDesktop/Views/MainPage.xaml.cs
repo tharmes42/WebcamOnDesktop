@@ -10,6 +10,9 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 using WebcamOnDesktop.Controls;
 using Windows.UI.ViewManagement;
+using Windows.Foundation;
+using WebcamOnDesktop.Services;
+using Windows.UI.Xaml.Media.Animation;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -25,6 +28,12 @@ namespace WebcamOnDesktop.Views
         {
             InitializeComponent();
             CameraListView.Loaded += CameraListView_Loaded;
+            //if you want any size smaller than the default 500x320, you will need to manually reset it
+            //ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(200, 100));
+            ApplicationView.PreferredLaunchViewSize = new Size(500, 380);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
+
+
         }
 
         private void CameraListView_Loaded(object sender, RoutedEventArgs e)
@@ -32,17 +41,24 @@ namespace WebcamOnDesktop.Views
             // Set focus so the first item of the listview has focus
             // instead of some item which is not visible on page load
             CameraListView.Focus(FocusState.Programmatic);
-            
+  
         }
+        
 
+
+        private void CompactOverlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            //preselect camera if it was previously selected
+            localSettings.Values["cameraSelected"] = CameraListView.SelectedItem?.ToString();
+            NavigationService.Navigate(typeof(CameraPage), null, new SuppressNavigationTransitionInfo());
+        }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             CameraListView.ItemsSource = await CameraControl.GetCamerasAsync();
             Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-            /*if (CameraListView.Items.Count > 0)
-                CameraListView.SelectedIndex = 0;
-            */
+
             //save name of camera (this is used by target page CameraPage, note: is it dirty to use localSettings as alternative to a mvvm pattern?
             string cameraSelected = (string)localSettings?.Values["cameraSelected"];
             int cameraSelectedIndex = 0;
@@ -54,8 +70,8 @@ namespace WebcamOnDesktop.Views
                     break;
                 }
             }
+            
             CameraListView.SelectedIndex = cameraSelectedIndex;
-
             
         }
 

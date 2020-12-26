@@ -55,6 +55,7 @@ namespace WebcamOnDesktop.Controls
         private DisplayOrientations _displayOrientation = DisplayOrientations.Portrait;
         private DeviceInformationCollection _cameraDevices;
         private bool _capturing;
+        private VideoEncodingProperties videoProps;
 
 
         public bool CanSwitch
@@ -93,6 +94,11 @@ namespace WebcamOnDesktop.Controls
             set { SetValue(CameraSelectedProperty, value); }
         }
 
+
+        public Size PreviewSize
+        {
+            get { return new Size(PreviewControl.ActualWidth, PreviewControl.ActualHeight); }
+        }
 
         public CameraControl()
         {
@@ -146,6 +152,25 @@ namespace WebcamOnDesktop.Controls
                     CanSwitch = _cameraDevices?.Count > 1;
                     RegisterOrientationEventHandlers();
                     await StartPreviewAsync();
+
+                    videoProps = (VideoEncodingProperties)_mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
+
+                    // TODO: export this information to provide correct aspectratio
+                    //double cameraWidth = videoProps.Width;
+                    //double cameraHeight = videoProps.Height;
+
+                    //double previewOutputWidth = PreviewControl.ActualWidth;
+                    //double previewOutputHeight = PreviewControl.ActualHeight;
+
+                    //double cameraRatio = cameraWidth / cameraHeight;
+                    //double previewOutputRatio = previewOutputWidth / previewOutputHeight;
+
+                    //double actualWidth = (cameraRatio <= previewOutputRatio) ?
+                    //    previewOutputHeight * cameraRatio
+                    //    : previewOutputWidth;
+                    //double actualHeight = (cameraRatio <= previewOutputRatio) ?
+                    //    previewOutputHeight
+                    //    : previewOutputWidth / cameraRatio;
                 }
             }
             catch (UnauthorizedAccessException)

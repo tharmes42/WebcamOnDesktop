@@ -43,7 +43,10 @@ namespace WebcamOnDesktop.Views
                 //bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
 
                 ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
-                compactOptions.CustomSize = new Windows.Foundation.Size(320, 200);
+
+                compactOptions.CustomSize = new Windows.Foundation.Size(320, 240);
+                // TODO: size must get correct aspectratio
+                //compactOptions.CustomSize = cameraControl.PreviewSize;
                 compactOptions.ViewSizePreference = ViewSizePreference.UseNone;
                 bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
                 //compactOverlayButton.Visibility = Visibility.Collapsed;

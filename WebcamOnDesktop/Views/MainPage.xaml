@@ -2,31 +2,44 @@
     x:Class="WebcamOnDesktop.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:local1="using:WebcamOnDesktop.Controls"
-    Style="{StaticResource PageStyle}"
     xmlns:behaviors="using:WebcamOnDesktop.Behaviors"
-    behaviors:NavigationViewHeaderBehavior.HeaderMode="Minimal"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local1="using:WebcamOnDesktop.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    behaviors:NavigationViewHeaderBehavior.HeaderMode="Always"
+    Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
-    <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}" >  
+    <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
         <Grid>
             <!--
-                The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
+                The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content.
                 Place your content here.
             -->
             <StackPanel>
                 <ListView
                     x:Name="CameraListView"
-                    Margin="{StaticResource SmallTopBottomMargin}"
-                    BorderThickness="1"
-                    BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
                     Width="350"
-                    SelectionMode="Single"
-                    HorizontalAlignment="Left"/>
-
-
-            <!--
+                    Margin="{StaticResource SmallTopBottomMargin}"
+                    HorizontalAlignment="Left"
+                    BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                    BorderThickness="1"
+                    IsItemClickEnabled="False"
+                    SelectionMode="Single" />
+                <StackPanel Orientation="Horizontal">
+                    <!--<SymbolIcon Symbol="Play" Height="24" />-->
+                    <Button
+                    x:Name="compactOverlayButton"
+                    x:Uid="Shell_Camera"
+                    
+                    Margin="{StaticResource NoMargin}"
+                    Style="{StaticResource TitleTextButtonStyle}"
+                    Click="CompactOverlayButton_Click"
+                    
+                     />
+                </StackPanel>
+                <!--
+                //ItemClick="CameraListView_ItemClick"
+                //SelectionChanged="CameraListView_SelectionChanged"
                 <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
                     <TextBlock x:Uid="Settings_Theme" />
 
@@ -34,7 +47,7 @@
                         <TextBlock Margin="{StaticResource XSmallTopMargin}">Test1</TextBlock>
                         <TextBlock Margin="{StaticResource XSmallTopMargin}">Test2</TextBlock>
                         <TextBlock Margin="{StaticResource XSmallTopMargin}">Test3</TextBlock>
-                        
+
 
                     </StackPanel>
                 </StackPanel>

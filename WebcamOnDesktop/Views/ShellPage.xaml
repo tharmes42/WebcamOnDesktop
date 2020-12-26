@@ -16,14 +16,15 @@
     <winui:NavigationView
         x:Name="navigationView"
         IsBackButtonVisible="Collapsed"
-        IsPaneToggleButtonVisible="True"
+        IsPaneToggleButtonVisible="False"
         IsBackEnabled="{x:Bind IsBackEnabled, Mode=OneWay}"
         IsSettingsVisible="True"
         ItemInvoked="OnItemInvoked"
         PaneDisplayMode="LeftCompact"
-        AlwaysShowHeader="False"
+        AlwaysShowHeader="True"
         Background="{ThemeResource AppMaxAcrylicBackgroundBrush}"
         SelectedItem="{x:Bind Selected, Mode=OneWay}">
+        <!-- PaneDisplayMode="LeftCompact" -->
         <!--  Background="{ThemeResource SystemControlBackgroundAltHighBrush}">  -->
         <winui:NavigationView.MenuItems>
             <!--
