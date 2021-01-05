@@ -13,7 +13,7 @@ Now drag and resize your webcam window freely
 <img src="https://github.com/tharmes42/WebcamOnDesktop/blob/master/pagecontent/WebcamOnDesktop_Screen2.png" alt="Drag and resize your webcam window freely" width="400"/>
 
 
-Use it in presentations, recordings or webinars, even in full screen it stays on top
+Use it in presentations, recordings or webinars, it stays on top even in fullscreen mode
 
 <img src="https://github.com/tharmes42/WebcamOnDesktop/blob/master/pagecontent/WebcamOnDesktop_Screen3.png" alt="Use it in presentations, recordings or webinars" width="400"/>
 
