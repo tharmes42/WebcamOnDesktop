@@ -86,20 +86,6 @@ namespace WebcamOnDesktop.Views
 
         }
 
-        private async void CompactOverlayButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
-            {
-                //bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
-
-                ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
-                compactOptions.CustomSize = new Windows.Foundation.Size(320, 200);
-                compactOptions.ViewSizePreference = ViewSizePreference.UseNone;
-                bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
-                compactOverlayButton.Visibility = Visibility.Collapsed;
-                
-
-            }
-        }
+    
     }
 }
