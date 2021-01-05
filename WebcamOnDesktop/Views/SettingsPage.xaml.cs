@@ -53,8 +53,8 @@ namespace WebcamOnDesktop.Views
 
         private string GetVersionDescription()
         {
-            //var appName = "AppDisplayName".GetLocalized();
-            var appName = "AppDisplayName";
+            var appName = "AppDisplayName".GetLocalized();
+            //var appName = "AppDisplayName";
             var package = Package.Current;
             var packageId = package.Id;
             var version = packageId.Version;

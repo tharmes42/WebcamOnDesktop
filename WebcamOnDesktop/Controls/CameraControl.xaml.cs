@@ -137,7 +137,10 @@ namespace WebcamOnDesktop.Controls
                     //var cameraId = device?.Id ?? _cameraDevices.First().Id;
                     var cameraId = cameraSelectedId ?? device?.Id;
 
-                    await _mediaCapture.InitializeAsync(new MediaCaptureInitializationSettings { VideoDeviceId = cameraId });
+                    await _mediaCapture.InitializeAsync(new MediaCaptureInitializationSettings {
+                        VideoDeviceId = cameraId, 
+                        StreamingCaptureMode = StreamingCaptureMode.Video 
+                    });
 
                     if (Panel == Panel.Back)
                     {
