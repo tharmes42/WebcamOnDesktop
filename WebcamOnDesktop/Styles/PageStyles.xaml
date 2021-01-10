@@ -21,12 +21,15 @@
     </Style>
 
 
-    <Style
-        x:Key="TitleTextButtonStyle"
-
-        TargetType="Button">
-        <Setter Property="FontWeight" Value="SemiLight"/>
-        <Setter Property="FontSize" Value="24"/>
+    <Style x:Key="TitleTextButtonStyle" TargetType="Button">
+        <Setter Property="FontWeight" Value="SemiLight" />
+        <Setter Property="FontSize" Value="24" />
     </Style>
 
+
+    <Style x:Key="HighlightedFaceBoxStyle" TargetType="Rectangle">
+        <Setter Property="Fill" Value="Transparent" />
+        <Setter Property="Stroke" Value="Yellow" />
+        <Setter Property="StrokeThickness" Value="2" />
+    </Style>
 </ResourceDictionary>

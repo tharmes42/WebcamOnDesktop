@@ -11,10 +11,6 @@
     mc:Ignorable="d">
     <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
         <Grid>
-            <!--
-                The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content.
-                Place your content here.
-            -->
             <StackPanel>
                 <ListView
                     x:Name="CameraListView"
@@ -25,39 +21,13 @@
                     BorderThickness="1"
                     IsItemClickEnabled="False"
                     SelectionMode="Single" />
-                <StackPanel Orientation="Horizontal">
-                    <!--<SymbolIcon Symbol="Play" Height="24" />-->
-                    <Button
+                <Button
                     x:Name="compactOverlayButton"
                     x:Uid="Shell_Camera"
-                    
                     Margin="{StaticResource NoMargin}"
-                    Style="{StaticResource TitleTextButtonStyle}"
                     Click="CompactOverlayButton_Click"
-                    
-                     />
-                </StackPanel>
-                <!--
-                //ItemClick="CameraListView_ItemClick"
-                //SelectionChanged="CameraListView_SelectionChanged"
-                <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
-                    <TextBlock x:Uid="Settings_Theme" />
+                    Style="{StaticResource TitleTextButtonStyle}" />
 
-                    <StackPanel Margin="{StaticResource XSmallTopMargin}">
-                        <TextBlock Margin="{StaticResource XSmallTopMargin}">Test1</TextBlock>
-                        <TextBlock Margin="{StaticResource XSmallTopMargin}">Test2</TextBlock>
-                        <TextBlock Margin="{StaticResource XSmallTopMargin}">Test3</TextBlock>
-
-
-                    </StackPanel>
-                </StackPanel>
-
-                <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
-
-                <StackPanel Margin="{StaticResource XSmallTopMargin}">
-                    <HyperlinkButton x:Uid="Settings_PrivacyTermsLink" Margin="{StaticResource XSmallTopMargin}" />
-                </StackPanel>
-                -->
             </StackPanel>
         </Grid>
     </Grid>

@@ -2,24 +2,25 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 using WebcamOnDesktop.Helpers;
-
-using Windows.ApplicationModel;
+using WebcamOnDesktop.Views;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Sensors;
 using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
+using Windows.Media;
 using Windows.Media.Capture;
+using Windows.Media.FaceAnalysis;
 using Windows.Media.MediaProperties;
-using Windows.Storage;
-using Windows.Storage.FileProperties;
-using Windows.Storage.Streams;
+using Windows.System.Threading;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
 
 namespace WebcamOnDesktop.Controls
 {
@@ -48,14 +49,34 @@ namespace WebcamOnDesktop.Controls
         private readonly Guid _rotationKey = new Guid("C380465D-2271-428C-9B83-ECEA3B4A85C1");
         private readonly DisplayInformation _displayInformation = DisplayInformation.GetForCurrentView();
         private readonly SimpleOrientationSensor _orientationSensor = SimpleOrientationSensor.GetDefault();
-        private MediaCapture _mediaCapture;
-        private bool _isPreviewing;
-        private bool _mirroringPreview;
-        private SimpleOrientation _deviceOrientation = SimpleOrientation.NotRotated;
-        private DisplayOrientations _displayOrientation = DisplayOrientations.Portrait;
+        private MediaCapture mediaCapture;
+        private bool isPreviewing;
+        private bool mirroringPreview;
+        private SimpleOrientation deviceOrientation = SimpleOrientation.NotRotated;
+        private DisplayOrientations displayOrientation = DisplayOrientations.Portrait;
         private DeviceInformationCollection _cameraDevices;
-        private bool _capturing;
-        private VideoEncodingProperties videoProps;
+        private bool capturing;
+
+
+        /// <summary>
+        /// Cache of properties from the current MediaCapture device which is used for capturing the preview frame.
+        /// </summary>
+        private VideoEncodingProperties videoProperties;
+
+        /// <summary>
+        /// References a FaceTracker instance.
+        /// </summary>
+        private FaceTracker faceTracker;
+
+        /// <summary>
+        /// A periodic timer to execute FaceTracker on preview frames
+        /// </summary>
+        private ThreadPoolTimer frameProcessingTimer;
+
+        /// <summary>
+        /// Flag to ensure FaceTracking logic only executes one at a time
+        /// </summary>
+        private int busy = 0;
 
 
         public bool CanSwitch
@@ -106,14 +127,24 @@ namespace WebcamOnDesktop.Controls
 
         }
 
-        public async Task InitializeCameraAsync()
+
+        /// <summary>
+        /// Creates the FaceTracker object which we will use for face detection and tracking.
+        /// Initializes a new MediaCapture instance and starts the Preview streaming to the CamPreview UI element.
+        /// </summary>
+        /// <returns>Async Task object returning true if initialization and streaming were successful and false if an exception occurred.</returns>
+        public async Task<bool> InitializeCameraAsync()
         {
+            bool successful = false;
+
+            faceTracker = await FaceTracker.CreateAsync();
+
             try
             {
-                if (_mediaCapture == null)
+                if (mediaCapture == null)
                 {
-                    _mediaCapture = new MediaCapture();
-                    _mediaCapture.Failed += MediaCapture_Failed;
+                    mediaCapture = new MediaCapture();
+                    mediaCapture.Failed += MediaCapture_Failed;
 
                     _cameraDevices = await DeviceInformation.FindAllAsync(DeviceClass.VideoCapture);
                     if (_cameraDevices == null || !_cameraDevices.Any())
@@ -137,26 +168,34 @@ namespace WebcamOnDesktop.Controls
                     //var cameraId = device?.Id ?? _cameraDevices.First().Id;
                     var cameraId = cameraSelectedId ?? device?.Id;
 
-                    await _mediaCapture.InitializeAsync(new MediaCaptureInitializationSettings {
+                    //limit request to "Video", to avoid to require permissions for "Audio" (which we don't use anyway)
+                    await mediaCapture.InitializeAsync(new MediaCaptureInitializationSettings {
                         VideoDeviceId = cameraId, 
                         StreamingCaptureMode = StreamingCaptureMode.Video 
                     });
 
                     if (Panel == Panel.Back)
                     {
-                        _mirroringPreview = false;
+                        mirroringPreview = false;
                     }
                     else
                     {
-                        _mirroringPreview = true;
+                        mirroringPreview = true;
                     }
+
+                    // TODO: remove this!
+                    mirroringPreview = false;
 
                     IsInitialized = true;
                     CanSwitch = _cameraDevices?.Count > 1;
                     RegisterOrientationEventHandlers();
                     await StartPreviewAsync();
 
-                    videoProps = (VideoEncodingProperties)_mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
+                    // Run the timer at 66ms, which is approximately 15 frames per second.
+                    TimeSpan timerInterval = TimeSpan.FromMilliseconds(66);
+                    this.frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(ProcessCurrentVideoFrame, timerInterval);
+
+                    videoProperties = (VideoEncodingProperties)mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
 
                     // TODO: export this information to provide correct aspectratio
                     //double cameraWidth = videoProps.Width;
@@ -175,6 +214,7 @@ namespace WebcamOnDesktop.Controls
                     //    previewOutputHeight
                     //    : previewOutputWidth / cameraRatio;
                 }
+                successful = true;
             }
             catch (UnauthorizedAccessException)
             {
@@ -192,13 +232,133 @@ namespace WebcamOnDesktop.Controls
             {
                 errorMessage.Text = "Camera_Exception_InitializationError".GetLocalized();
             }
+            return successful;
         }
+
+
+        /// <summary>
+        /// This method is invoked by a ThreadPoolTimer to execute the FaceTracker and Visualization logic.
+        /// </summary>
+        /// <param name="timer">Timer object invoking this call</param>
+        private async void ProcessCurrentVideoFrame(ThreadPoolTimer timer)
+        {
+
+            // If busy is already 1, then the previous frame is still being processed,
+            // in which case we skip the current frame.
+            if (Interlocked.CompareExchange(ref busy, 1, 0) != 0)
+            {
+                return;
+            }
+
+            await ProcessCurrentVideoFrameAsync();
+            Interlocked.Exchange(ref busy, 0);
+        }
+
+        /// <summary>
+        /// This method is called to execute the FaceTracker and Visualization logic at each timer tick.
+        /// </summary>
+        /// <remarks>
+        /// Keep in mind this method is called from a Timer and not synchronized with the camera stream. Also, the processing time of FaceTracker
+        /// will vary depending on the size of each frame and the number of faces being tracked. That is, a large image with several tracked faces may
+        /// take longer to process.
+        /// </remarks>
+        private async Task ProcessCurrentVideoFrameAsync()
+        {
+            // Create a VideoFrame object specifying the pixel format we want our capture image to be (NV12 bitmap in this case).
+            // GetPreviewFrame will convert the native webcam frame into this format.
+            const BitmapPixelFormat InputPixelFormat = BitmapPixelFormat.Nv12;
+            using (VideoFrame previewFrame = new VideoFrame(InputPixelFormat, (int)this.videoProperties.Width, (int)this.videoProperties.Height))
+            {
+                try
+                {
+                    await this.mediaCapture.GetPreviewFrameAsync(previewFrame);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Lost access to the camera.
+                    //AbandonStreaming();
+                    return;
+                }
+                catch (Exception)
+                {
+                    errorMessage.Text ="PreviewFrame with format '{InputPixelFormat}' is not supported by your Webcam";
+                    return;
+                }
+
+                // The returned VideoFrame should be in the supported NV12 format but we need to verify this.
+                if (!FaceDetector.IsBitmapPixelFormatSupported(previewFrame.SoftwareBitmap.BitmapPixelFormat))
+                {
+                    errorMessage.Text = "PixelFormat '{previewFrame.SoftwareBitmap.BitmapPixelFormat}' is not supported by FaceDetector";
+                    return;
+                }
+
+                IList<DetectedFace> faces;
+                try
+                {
+                    faces = await this.faceTracker.ProcessNextFrameAsync(previewFrame);
+                }
+                catch (Exception ex)
+                {
+                    errorMessage.Text = ex.ToString();
+                    return;
+                }
+
+                // Create our visualization using the frame dimensions and face results but run it on the UI thread.
+                var previewFrameSize = new Windows.Foundation.Size(previewFrame.SoftwareBitmap.PixelWidth, previewFrame.SoftwareBitmap.PixelHeight);
+                var ignored = this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    this.SetupVisualization(previewFrameSize, faces);
+                });
+            }
+        }
+
+        /// <summary>
+        /// Takes the webcam image and FaceTracker results and assembles the visualization onto the Canvas.
+        /// </summary>
+        /// <param name="framePizelSize">Width and height (in pixels) of the video capture frame</param>
+        /// <param name="foundFaces">List of detected faces; output from FaceTracker</param>
+        private void SetupVisualization(Windows.Foundation.Size framePixelSize, IList<DetectedFace> foundFaces)
+        {
+            this.VisualizationCanvas.Children.Clear();
+
+            if (framePixelSize.Width != 0.0 && framePixelSize.Height != 0.0)
+            {
+                double widthScale = this.VisualizationCanvas.ActualWidth / framePixelSize.Width;
+                double heightScale = this.VisualizationCanvas.ActualHeight / framePixelSize.Height;
+
+                foreach (DetectedFace face in foundFaces)
+                {
+
+                    //double mirrorX = (face.FaceBox.X * widthScale) > (this.VisualizationCanvas.ActualWidth / 2) ? (face.FaceBox.X * widthScale) - (this.VisualizationCanvas.ActualWidth / 2) : (face.FaceBox.X * widthScale) + (this.VisualizationCanvas.ActualWidth / 2);
+
+                    // Create a rectangle element for displaying the face box but since we're using a Canvas
+                    // we must scale the rectangles according to the frames's actual size.
+                    Rectangle box = new Rectangle()
+                    {
+                        Width = face.FaceBox.Width * widthScale,
+                        Height = face.FaceBox.Height * heightScale,
+                        //Margin = new Thickness(face.FaceBox.X * widthScale, face.FaceBox.Y * heightScale, 0, 0),
+                        Margin = new Thickness(face.FaceBox.X * widthScale, face.FaceBox.Y * heightScale, 0, 0),
+                        Stroke = new SolidColorBrush(Windows.UI.Colors.Blue),
+                        StrokeThickness = 2,
+                        Fill = new SolidColorBrush(Windows.UI.Colors.Transparent)
+                    //Style = this.Resources["HighlightedFaceBoxStyle"] as Style
+                    //Style = new Style() { TargetType = Rectangle, Setters = }
+                    };
+                    //box.RenderTransform = new ScaleTransform() { ScaleX = -1, CenterX = 160 , CenterY = 0 };
+                    //box.RenderTransform = new RotateTransform() { Angle=180, CenterX = 160, CenterY = 120 };
+                    this.VisualizationCanvas.Children.Add(box);
+                }
+            }
+        }
+
+
 
         public async Task CleanupCameraAsync()
         {
             if (IsInitialized)
             {
-                if (_isPreviewing)
+                if (isPreviewing)
                 {
                     await StopPreviewAsync();
                 }
@@ -207,11 +367,11 @@ namespace WebcamOnDesktop.Controls
                 IsInitialized = false;
             }
 
-            if (_mediaCapture != null)
+            if (mediaCapture != null)
             {
-                _mediaCapture.Failed -= MediaCapture_Failed;
-                _mediaCapture.Dispose();
-                _mediaCapture = null;
+                mediaCapture.Failed -= MediaCapture_Failed;
+                mediaCapture.Dispose();
+                mediaCapture = null;
             }
         }
 
@@ -280,39 +440,39 @@ namespace WebcamOnDesktop.Controls
 
         private async Task StartPreviewAsync()
         {
-            PreviewControl.Source = _mediaCapture;
-            PreviewControl.FlowDirection = _mirroringPreview ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+            PreviewControl.Source = mediaCapture;
+            PreviewControl.FlowDirection = mirroringPreview ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
-            if (_mediaCapture != null)
+            if (mediaCapture != null)
             {
-                await _mediaCapture.StartPreviewAsync();
+                await mediaCapture.StartPreviewAsync();
                 await SetPreviewRotationAsync();
-                _isPreviewing = true;
+                isPreviewing = true;
             }
         }
 
         private async Task SetPreviewRotationAsync()
         {
-            _displayOrientation = _displayInformation.CurrentOrientation;
+            displayOrientation = _displayInformation.CurrentOrientation;
             int rotationDegrees = 0; //_displayOrientation.ToDegrees();
 
-            if (_mirroringPreview)
+            if (mirroringPreview)
             {
                 rotationDegrees = (360 - rotationDegrees) % 360;
             }
 
-            if (_mediaCapture != null)
+            if (mediaCapture != null)
             {
-                var props = _mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
+                var props = mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
                 props.Properties.Add(_rotationKey, rotationDegrees);
-                await _mediaCapture.SetEncodingPropertiesAsync(MediaStreamType.VideoPreview, props, null);
+                await mediaCapture.SetEncodingPropertiesAsync(MediaStreamType.VideoPreview, props, null);
             }
         }
 
         private async Task StopPreviewAsync()
         {
-            _isPreviewing = false;
-            await _mediaCapture.StopPreviewAsync();
+            isPreviewing = false;
+            await mediaCapture.StopPreviewAsync();
             PreviewControl.Source = null;
         }
 
@@ -322,11 +482,11 @@ namespace WebcamOnDesktop.Controls
             if (_orientationSensor != null)
             {
                 _orientationSensor.OrientationChanged += OrientationSensor_OrientationChanged;
-                _deviceOrientation = _orientationSensor.GetCurrentOrientation();
+                deviceOrientation = _orientationSensor.GetCurrentOrientation();
             }
 
             _displayInformation.OrientationChanged += DisplayInformation_OrientationChanged;
-            _displayOrientation = _displayInformation.CurrentOrientation;
+            displayOrientation = _displayInformation.CurrentOrientation;
         }
 
         private void UnregisterOrientationEventHandlers()
@@ -343,13 +503,13 @@ namespace WebcamOnDesktop.Controls
         {
             if (args.Orientation != SimpleOrientation.Faceup && args.Orientation != SimpleOrientation.Facedown)
             {
-                _deviceOrientation = args.Orientation;
+                deviceOrientation = args.Orientation;
             }
         }
 
         private async void DisplayInformation_OrientationChanged(DisplayInformation sender, object args)
         {
-            _displayOrientation = sender.CurrentOrientation;
+            displayOrientation = sender.CurrentOrientation;
             await SetPreviewRotationAsync();
         }
 
