@@ -10,16 +10,11 @@
     behaviors:NavigationViewHeaderBehavior.HeaderMode="Minimal"
     mc:Ignorable="d">
 
-
     <Grid x:Name="ContentArea" Margin="{StaticResource NoMargin}" >
-            <StackPanel>
                 <!--<TextBlock x:Uid="Camera_Headline" Style="{ThemeResource SubtitleTextBlockStyle}" />-->
                 <controls:CameraControl x:Name="cameraControl" 
                                         x:Uid="CameraPage_CameraControl" 
                                         Loaded="CameraControl_Loaded" />
-                <Button x:Name="compactOverlayButton" Content="Start Picture-in-Picture" Click="CompactOverlayButton_Click" Visibility="Collapsed" Margin="10" />
-
-            </StackPanel>
     </Grid>
 
 </Page>
