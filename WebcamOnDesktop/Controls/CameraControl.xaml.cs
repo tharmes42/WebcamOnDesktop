@@ -321,7 +321,9 @@ namespace WebcamOnDesktop.Controls
         {
             this.VisualizationCanvas.Children.Clear();
 
-            if (framePixelSize.Width != 0.0 && framePixelSize.Height != 0.0)
+
+            // TODO: this is where the box is drawed
+            /*if (framePixelSize.Width != 0.0 && framePixelSize.Height != 0.0)
             {
                 double widthScale = this.VisualizationCanvas.ActualWidth / framePixelSize.Width;
                 double heightScale = this.VisualizationCanvas.ActualHeight / framePixelSize.Height;
@@ -350,6 +352,7 @@ namespace WebcamOnDesktop.Controls
                     this.VisualizationCanvas.Children.Add(box);
                 }
             }
+            */
         }
 
 
