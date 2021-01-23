@@ -11,6 +11,8 @@ using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using System.Diagnostics;
+using Windows.UI.Xaml.Media;
+using Windows.Media;
 
 namespace WebcamOnDesktop.Helpers
 {
@@ -41,7 +43,21 @@ namespace WebcamOnDesktop.Helpers
         {
             u2netModel learningModel = new u2netModel();
             learningModel.model = await LearningModel.LoadFromStreamAsync(stream);
-            learningModel.session = new LearningModelSession(learningModel.model);
+
+            bool _useGPU = true;
+            // Select the device to evaluate on
+            LearningModelDevice device = null;
+            if (_useGPU)
+            {
+                // Use a GPU or other DirectX device to evaluate the model.
+                device = new LearningModelDevice(LearningModelDeviceKind.DirectX);
+            }
+            else
+            {
+                // Use the CPU to evaluate the model.
+                device = new LearningModelDevice(LearningModelDeviceKind.Cpu);
+            }
+            learningModel.session = new LearningModelSession(learningModel.model, device);
             learningModel.binding = new LearningModelBinding(learningModel.session);
             return learningModel;
         }
@@ -67,9 +83,12 @@ namespace WebcamOnDesktop.Helpers
         private u2netModel model;
         private SoftwareBitmapSource sourceImage;
         private Image targetImage;
+
+        public Image TargetImage { get => targetImage; set => targetImage = value; }
+
         public Segmentation()
         {
-            targetImage = new Image();
+            TargetImage = new Image();
         }
 
 
@@ -118,10 +137,35 @@ namespace WebcamOnDesktop.Helpers
             //await ToImage(output.o3, o3);
             //await ToImage(output.o2, o2);
             //await ToImage(output.o1, o1);
-            await ToBlendedImage(bytes, output.o0, targetImage);
+            await ToBlendedImage(bytes, output.o0, TargetImage);
         }
 
+        public async Task<Image> ProcessImage(SoftwareBitmap softwareBitmap)
+        {
 
+            byte[] bytes;
+
+            bytes = await GetImageAsByteArrayAsync(softwareBitmap, 320, 320, BitmapPixelFormat.Rgba8);
+
+            // Convert rgba-rgba-...-rgba to bb...b-rr...r-gg...g as colour weighted tensor (0..1)
+            TensorFloat input = TensorFloat.CreateFromIterable(new long[] { 1, 3, 320, 320 }, TensorBrg(bytes));
+
+            if (modelFile == null)
+            {
+                // Load model & perform inference
+                modelFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri($"ms-appx:///Assets/u2net.onnx"));
+                model = await u2netModel.CreateFromStreamAsync(modelFile);
+            }
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            u2netOutput output = await model.EvaluateAsync(new u2netInput { input = input });
+            sw.Stop();
+            //textTimer.Text = sw.ElapsedMilliseconds.ToString();
+
+            await ToBlendedImage(bytes, output.o0, TargetImage);
+            return TargetImage;
+        }
 
         private async Task<StorageFile> GetImageFile()
         {
@@ -147,7 +191,28 @@ namespace WebcamOnDesktop.Helpers
 
             return data.DetachPixelData();
         }
+        
+        private async Task<byte[]> GetImageAsByteArrayAsync(SoftwareBitmap softwareBitmap, uint width, uint height, BitmapPixelFormat pixelFormat)
+        {
 
+            //var transform = new BitmapTransform() { ScaledWidth = width, ScaledHeight = height, InterpolationMode = BitmapInterpolationMode.NearestNeighbor };
+            //using the VideoFrame as resizing tool
+            VideoFrame inputFrame = VideoFrame.CreateWithSoftwareBitmap(softwareBitmap);
+            SoftwareBitmap bitmapBuffer = new SoftwareBitmap(BitmapPixelFormat.Bgra8, (int)width, (int)height, BitmapAlphaMode.Ignore);
+	        VideoFrame buffer = VideoFrame.CreateWithSoftwareBitmap(bitmapBuffer);
+            await inputFrame.CopyToAsync(buffer);
+            
+            SoftwareBitmap resizedBitmap = buffer.SoftwareBitmap;
+            //WriteableBitmap innerBitmap = new WriteableBitmap(resizedBitmap.PixelWidth, resizedBitmap.PixelHeight);
+            //resizedBitmap.CopyToBuffer(innerBitmap.PixelBuffer);
+            //int[] pixels = innerBitmap.GetBitmapContext().Pixels;
+
+            //Bgra8 should have 4 Byte per pixel
+            byte[] imageBytes = new byte[4 * resizedBitmap.PixelWidth * resizedBitmap.PixelHeight];
+            resizedBitmap.CopyToBuffer(imageBytes.AsBuffer());
+            
+        return imageBytes;
+        }
 
         private async Task<SoftwareBitmap> GetImageAsSoftwareBitmapAsync(IRandomAccessStream stream, uint width, uint height, BitmapPixelFormat pixelFormat)
         {

@@ -99,6 +99,7 @@ namespace WebcamOnDesktop.Views
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        //used to update the visual elements on value change
         private void Set<T>(ref T storage, T value, [CallerMemberName]string propertyName = null)
         {
             if (Equals(storage, value))

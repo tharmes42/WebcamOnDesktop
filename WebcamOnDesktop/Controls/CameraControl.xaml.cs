@@ -16,10 +16,12 @@ using Windows.Media;
 using Windows.Media.Capture;
 using Windows.Media.FaceAnalysis;
 using Windows.Media.MediaProperties;
+using Windows.Storage;
 using Windows.System.Threading;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
 
 namespace WebcamOnDesktop.Controls
@@ -191,10 +193,17 @@ namespace WebcamOnDesktop.Controls
                     RegisterOrientationEventHandlers();
                     await StartPreviewAsync();
 
-                    // Run the timer at 66ms, which is approximately 15 frames per second.
-                    TimeSpan timerInterval = TimeSpan.FromMilliseconds(66);
-                    this.frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(ProcessCurrentVideoFrame, timerInterval);
+                    //check if facedetection and hideBackground should be activated
+                    bool hideBackground = await ApplicationData.Current.LocalSettings.ReadAsync<bool>("HideBackground");
+                    if (hideBackground) { 
+                       
+                        // Run the timer at 66ms, which is approximately 15 frames per second.
+                        //TimeSpan timerInterval = TimeSpan.FromMilliseconds(66);
+                        //TODO: revert to 66 ms
+                        TimeSpan timerInterval = TimeSpan.FromMilliseconds(500);
 
+                        this.frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(ProcessCurrentVideoFrame, timerInterval);
+                    }
                     videoProperties = (VideoEncodingProperties)mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
 
                     // TODO: export this information to provide correct aspectratio
@@ -272,6 +281,23 @@ namespace WebcamOnDesktop.Controls
                 try
                 {
                     await this.mediaCapture.GetPreviewFrameAsync(previewFrame);
+                    // TODO: remove test config here:
+                    
+                        _ = this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async() =>
+                        {
+                            var destSource = new SoftwareBitmapSource();
+                            //var previewFrameSoftwareBitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8,previewFrame.SoftwareBitmap.PixelWidth, previewFrame.SoftwareBitmap.PixelHeight);
+                            //previewFrame.SoftwareBitmap.CopyTo(previewFrameSoftwareBitmap);
+                            if (previewFrame.SoftwareBitmap != null)
+                            {
+                                //await destSource.SetBitmapAsync(SoftwareBitmap.Convert(previewFrame.SoftwareBitmap, BitmapPixelFormat.Bgra8));
+                                var segmentation = new Segmentation();
+                                var image = await segmentation.ProcessImage(SoftwareBitmap.Convert(previewFrame.SoftwareBitmap, BitmapPixelFormat.Bgra8));
+                                this.CameraImage.Source = image.Source;
+                            }
+                        });
+                    
+
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -303,12 +329,17 @@ namespace WebcamOnDesktop.Controls
                     return;
                 }
 
+
+
+
                 // Create our visualization using the frame dimensions and face results but run it on the UI thread.
                 var previewFrameSize = new Windows.Foundation.Size(previewFrame.SoftwareBitmap.PixelWidth, previewFrame.SoftwareBitmap.PixelHeight);
                 var ignored = this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
+                    
                     this.SetupVisualization(previewFrameSize, faces);
                 });
+
             }
         }
 
