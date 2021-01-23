@@ -51,7 +51,17 @@
                     </RadioButton>
                 </StackPanel>
             </StackPanel>
+            <StackPanel>
+                <CheckBox
+                    x:Uid="Settings_HideBackground"
+                    Unchecked="SettingChanged_CheckedAsync"
+                    Checked="SettingChanged_CheckedAsync"
+                    IsChecked="{x:Bind HideBackground,  Mode=TwoWay}"
+                        FontSize="15"
+                    CommandParameter="HideBackground">
 
+                </CheckBox>
+            </StackPanel>
             <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
 
             <StackPanel Margin="{StaticResource XSmallTopMargin}">

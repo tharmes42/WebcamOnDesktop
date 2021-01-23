@@ -7,6 +7,7 @@ using WebcamOnDesktop.Helpers;
 using WebcamOnDesktop.Services;
 
 using Windows.ApplicationModel;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -35,6 +36,14 @@ namespace WebcamOnDesktop.Views
             set { Set(ref _versionDescription, value); }
         }
 
+        public bool HideBackground
+        {
+            get { return _hideBackground; }
+            set { Set(ref _hideBackground, value); }
+        }
+
+        private bool _hideBackground = true;
+
         public SettingsPage()
         {
             InitializeComponent();
@@ -48,6 +57,8 @@ namespace WebcamOnDesktop.Views
         private async Task InitializeAsync()
         {
             VersionDescription = GetVersionDescription();
+            HideBackground = await ApplicationData.Current.LocalSettings.ReadAsync<bool>("HideBackground");
+
             await Task.CompletedTask;
         }
 
@@ -71,6 +82,20 @@ namespace WebcamOnDesktop.Views
                 await ThemeSelectorService.SetThemeAsync((ElementTheme)param);
             }
         }
+
+        //direct update of settings via XAML checkbox
+        //settingskey must be passed as Checkbox CommandParameter
+        private async void SettingChanged_CheckedAsync(object sender, RoutedEventArgs e)
+        {
+            var settingsKey = (sender as CheckBox)?.CommandParameter;
+            var settingsVal = (sender as CheckBox)?.IsChecked;
+
+            if (settingsKey != null && settingsVal!= null)
+            {
+                await ApplicationData.Current.LocalSettings.SaveAsync(settingsKey.ToString(), settingsVal.ToString());
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

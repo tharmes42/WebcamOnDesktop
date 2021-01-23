@@ -249,6 +249,6 @@ namespace WebcamOnDesktop.Helpers
             await destSouce.SetBitmapAsync(dest);
 
             target.Source = destSouce;
-    }
+        }
     }
 }
