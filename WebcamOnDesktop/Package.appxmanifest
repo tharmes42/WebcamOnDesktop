@@ -9,7 +9,7 @@
   <Identity
     Name="62302TobiasHarmes.WebcamOnDesktop"
     Publisher="CN=0A0E56E0-0A15-4866-8B32-463E5D3BAC60"
-    Version="1.0.3.0" />
+    Version="1.0.4.0" />
 
   <mp:PhoneIdentity PhoneProductId="5f9094df-0dfb-401d-9bca-94e0e7011a94" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -36,7 +36,7 @@
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="WebcamOnDesktop"
-        BackgroundColor="transparent">
+        BackgroundColor="white">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png" ShortName="WebcamOnDesktop">
           <uap:ShowNameOnTiles>
             <uap:ShowOn Tile="square150x150Logo"/>
