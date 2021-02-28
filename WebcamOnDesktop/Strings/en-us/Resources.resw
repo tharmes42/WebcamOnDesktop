@@ -204,6 +204,6 @@
     <value>Select your Camera</value>
   </data>
   <data name="Settings_HideBackground.Content" xml:space="preserve">
-    <value>Hide Background</value>
+    <value>Hide Background (experimental)</value>
   </data>
 </root>

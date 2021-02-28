@@ -6,26 +6,20 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
-    <StackPanel>
-        <Grid>
-            <!--  Camera preview  -->
-            <CaptureElement Name="PreviewControl" Stretch="UniformToFill" />
-            <Canvas
-                Name="VisualizationCanvas"
-                Margin="0,0,0,0"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch" />
-            <!--  Error Message if any  -->
-            <TextBlock
-                x:Name="errorMessage"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="18"
-                TextWrapping="WrapWholeWords" />
-        </Grid>
-        <StackPanel>
-            <TextBlock>Test</TextBlock>
-            <Image x:Name="CameraImage" Width="320" Height="320" Source="/Assets/LargeTile.scale-100.png" />
-        </StackPanel>
-    </StackPanel>
+    <Grid>
+        <!--  Camera preview  -->
+        <CaptureElement Name="PreviewControl" Stretch="UniformToFill" />
+        <Canvas
+            Name="VisualizationCanvas"
+            Margin="0,0,0,0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" />
+        <!--  Error Message if any  -->
+        <TextBlock
+            x:Name="errorMessage"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            FontSize="18"
+            TextWrapping="WrapWholeWords" />
+    </Grid>
 </UserControl>

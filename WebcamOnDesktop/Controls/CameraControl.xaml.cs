@@ -16,19 +16,17 @@ using Windows.Media;
 using Windows.Media.Capture;
 using Windows.Media.FaceAnalysis;
 using Windows.Media.MediaProperties;
-using Windows.Storage;
 using Windows.System.Threading;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
 
 namespace WebcamOnDesktop.Controls
 {
     public sealed partial class CameraControl
     {
-        
+
         public static readonly DependencyProperty CanSwitchProperty =
             DependencyProperty.Register("CanSwitch", typeof(bool), typeof(CameraControl), new PropertyMetadata(false));
 
@@ -111,7 +109,7 @@ namespace WebcamOnDesktop.Controls
             set { SetValue(SwitchCameraButtonStyleProperty, value); }
         }
 
-        public string  CameraSelected
+        public string CameraSelected
         {
             get { return (string)GetValue(CameraSelectedProperty); }
             set { SetValue(CameraSelectedProperty, value); }
@@ -155,9 +153,9 @@ namespace WebcamOnDesktop.Controls
                     }
 
                     string cameraSelectedId = null;
-                    for (int i=0; i<_cameraDevices.Count; i++)
+                    for (int i = 0; i < _cameraDevices.Count; i++)
                     {
-                        if (_cameraDevices[i].Name== CameraSelected)
+                        if (_cameraDevices[i].Name == CameraSelected)
                         {
                             cameraSelectedId = _cameraDevices[i]?.Id;
                             break;
@@ -171,9 +169,10 @@ namespace WebcamOnDesktop.Controls
                     var cameraId = cameraSelectedId ?? device?.Id;
 
                     //limit request to "Video", to avoid to require permissions for "Audio" (which we don't use anyway)
-                    await mediaCapture.InitializeAsync(new MediaCaptureInitializationSettings {
-                        VideoDeviceId = cameraId, 
-                        StreamingCaptureMode = StreamingCaptureMode.Video 
+                    await mediaCapture.InitializeAsync(new MediaCaptureInitializationSettings
+                    {
+                        VideoDeviceId = cameraId,
+                        StreamingCaptureMode = StreamingCaptureMode.Video
                     });
 
                     if (Panel == Panel.Back)
@@ -185,25 +184,18 @@ namespace WebcamOnDesktop.Controls
                         mirroringPreview = true;
                     }
 
-                    // TODO: remove this!
-                    mirroringPreview = false;
+                    // TODO: enable this to mirror
+                    //mirroringPreview = false;
 
                     IsInitialized = true;
                     CanSwitch = _cameraDevices?.Count > 1;
                     RegisterOrientationEventHandlers();
                     await StartPreviewAsync();
 
-                    //check if facedetection and hideBackground should be activated
-                    bool hideBackground = await ApplicationData.Current.LocalSettings.ReadAsync<bool>("HideBackground");
-                    if (hideBackground) { 
-                       
-                        // Run the timer at 66ms, which is approximately 15 frames per second.
-                        //TimeSpan timerInterval = TimeSpan.FromMilliseconds(66);
-                        //TODO: revert to 66 ms
-                        TimeSpan timerInterval = TimeSpan.FromMilliseconds(500);
+                    // Run the timer at 66ms, which is approximately 15 frames per second.
+                    TimeSpan timerInterval = TimeSpan.FromMilliseconds(66);
+                    this.frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(ProcessCurrentVideoFrame, timerInterval);
 
-                        this.frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(ProcessCurrentVideoFrame, timerInterval);
-                    }
                     videoProperties = (VideoEncodingProperties)mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
 
                     // TODO: export this information to provide correct aspectratio
@@ -281,23 +273,6 @@ namespace WebcamOnDesktop.Controls
                 try
                 {
                     await this.mediaCapture.GetPreviewFrameAsync(previewFrame);
-                    // TODO: remove test config here:
-                    
-                        _ = this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async() =>
-                        {
-                            var destSource = new SoftwareBitmapSource();
-                            //var previewFrameSoftwareBitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8,previewFrame.SoftwareBitmap.PixelWidth, previewFrame.SoftwareBitmap.PixelHeight);
-                            //previewFrame.SoftwareBitmap.CopyTo(previewFrameSoftwareBitmap);
-                            if (previewFrame.SoftwareBitmap != null)
-                            {
-                                //await destSource.SetBitmapAsync(SoftwareBitmap.Convert(previewFrame.SoftwareBitmap, BitmapPixelFormat.Bgra8));
-                                var segmentation = new Segmentation();
-                                var image = await segmentation.ProcessImage(SoftwareBitmap.Convert(previewFrame.SoftwareBitmap, BitmapPixelFormat.Bgra8));
-                                this.CameraImage.Source = image.Source;
-                            }
-                        });
-                    
-
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -307,7 +282,7 @@ namespace WebcamOnDesktop.Controls
                 }
                 catch (Exception)
                 {
-                    errorMessage.Text ="PreviewFrame with format '{InputPixelFormat}' is not supported by your Webcam";
+                    errorMessage.Text = "PreviewFrame with format '{InputPixelFormat}' is not supported by your Webcam";
                     return;
                 }
 
@@ -329,17 +304,12 @@ namespace WebcamOnDesktop.Controls
                     return;
                 }
 
-
-
-
                 // Create our visualization using the frame dimensions and face results but run it on the UI thread.
                 var previewFrameSize = new Windows.Foundation.Size(previewFrame.SoftwareBitmap.PixelWidth, previewFrame.SoftwareBitmap.PixelHeight);
                 var ignored = this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    
                     this.SetupVisualization(previewFrameSize, faces);
                 });
-
             }
         }
 
@@ -352,9 +322,7 @@ namespace WebcamOnDesktop.Controls
         {
             this.VisualizationCanvas.Children.Clear();
 
-
-            // TODO: this is where the box is drawed
-            /*if (framePixelSize.Width != 0.0 && framePixelSize.Height != 0.0)
+            if (framePixelSize.Width != 0.0 && framePixelSize.Height != 0.0)
             {
                 double widthScale = this.VisualizationCanvas.ActualWidth / framePixelSize.Width;
                 double heightScale = this.VisualizationCanvas.ActualHeight / framePixelSize.Height;
@@ -375,15 +343,16 @@ namespace WebcamOnDesktop.Controls
                         Stroke = new SolidColorBrush(Windows.UI.Colors.Blue),
                         StrokeThickness = 2,
                         Fill = new SolidColorBrush(Windows.UI.Colors.Transparent)
-                    //Style = this.Resources["HighlightedFaceBoxStyle"] as Style
-                    //Style = new Style() { TargetType = Rectangle, Setters = }
+                        //Style = this.Resources["HighlightedFaceBoxStyle"] as Style
+                        //Style = new Style() { TargetType = Rectangle, Setters = }
                     };
                     //box.RenderTransform = new ScaleTransform() { ScaleX = -1, CenterX = 160 , CenterY = 0 };
                     //box.RenderTransform = new RotateTransform() { Angle=180, CenterX = 160, CenterY = 120 };
-                    this.VisualizationCanvas.Children.Add(box);
+                    
+                    //TODO enable this to draw the box
+                    //this.VisualizationCanvas.Children.Add(box);
                 }
             }
-            */
         }
 
 
@@ -422,13 +391,13 @@ namespace WebcamOnDesktop.Controls
                 {
                     throw new NotSupportedException();
                 }
-                    
-                    
 
-                for (int i = 0; i < _cameraDevices.Count; i ++)
+
+
+                for (int i = 0; i < _cameraDevices.Count; i++)
                 {
                     cameras.Add(_cameraDevices[i].Name);
-                    
+
                 }
 
             }
@@ -454,7 +423,7 @@ namespace WebcamOnDesktop.Controls
             SwitchPanel();
         }
 
-        
+
         private async void CleanAndInitialize()
         {
             await Task.Run(async () => await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
@@ -590,7 +559,7 @@ namespace WebcamOnDesktop.Controls
             return cameras;
         }
 
- 
+
     }
 
 
