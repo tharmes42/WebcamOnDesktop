@@ -4,6 +4,9 @@ Your webcam on desktop as a free floating always on top window.
 ## Download
 Download [the windows app at Microsoft Store](https://www.microsoft.com/store/productId/9NWR1L09C54Z) or get sources at the [Release page](https://github.com/tharmes42/WebcamOnDesktop/releases/latest)
 
+## Feature requests or problems
+Please use the [Issues-Section](https://github.com/tharmes42/WebcamOnDesktop/issues) to request features or report problems. Thanks in advance!
+
 ## Screenshots
 
 Start by first selecting your camera and second clicking on "Show camera"
