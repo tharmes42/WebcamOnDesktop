@@ -52,13 +52,15 @@
                 </StackPanel>
             </StackPanel>
             <StackPanel>
+                <!-- //TODO: make it visible again if feature is available -->
                 <CheckBox
                     x:Uid="Settings_HideBackground"
                     Unchecked="SettingChanged_CheckedAsync"
                     Checked="SettingChanged_CheckedAsync"
                     IsChecked="{x:Bind HideBackground,  Mode=TwoWay}"
                         FontSize="15"
-                    CommandParameter="HideBackground">
+                    CommandParameter="HideBackground"
+                    Visibility="Collapsed">
 
                 </CheckBox>
             </StackPanel>

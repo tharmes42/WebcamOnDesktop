@@ -282,7 +282,8 @@ namespace WebcamOnDesktop.Controls
                 }
                 catch (Exception)
                 {
-                    errorMessage.Text = "PreviewFrame with format '{InputPixelFormat}' is not supported by your Webcam";
+                    //if we set an error text here, we get RPC_E_WRONG_THREAD
+                    //errorMessage.Text = "PreviewFrame with format '{InputPixelFormat}' is not supported by your Webcam";
                     return;
                 }
 

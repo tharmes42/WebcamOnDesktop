@@ -30,7 +30,7 @@ namespace WebcamOnDesktop.Views
             CameraListView.Loaded += CameraListView_Loaded;
             //if you want any size smaller than the default 500x320, you will need to manually reset it
             //ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(200, 100));
-            ApplicationView.PreferredLaunchViewSize = new Size(500, 380);
+            ApplicationView.PreferredLaunchViewSize = new Size(500, 420);
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
 
 
