@@ -126,7 +126,7 @@
     <comment>Application description</comment>
   </data>
   <data name="Shell_Main.Content" xml:space="preserve">
-    <value>1. Wähle Camera</value>
+    <value>1. Wähle Kamera</value>
     <comment>Navigation view item name for Main</comment>
   </data>
   <data name="Camera_Exception_UnauthorizedAccess" xml:space="preserve">

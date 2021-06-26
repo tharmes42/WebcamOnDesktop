@@ -55,7 +55,6 @@ namespace WebcamOnDesktop.Controls
         private SimpleOrientation deviceOrientation = SimpleOrientation.NotRotated;
         private DisplayOrientations displayOrientation = DisplayOrientations.Portrait;
         private DeviceInformationCollection _cameraDevices;
-        private bool capturing;
 
 
         /// <summary>
@@ -412,11 +411,6 @@ namespace WebcamOnDesktop.Controls
         public void SwitchPanel()
         {
             Panel = (Panel == Panel.Front) ? Panel.Back : Panel.Front;
-        }
-
-        private async void CaptureButton_Click(object sender, RoutedEventArgs e)
-        {
-            //await TakePhoto();
         }
 
         private void SwitchButton_Click(object sender, RoutedEventArgs e)
