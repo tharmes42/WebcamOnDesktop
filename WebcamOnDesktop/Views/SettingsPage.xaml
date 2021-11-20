@@ -63,6 +63,26 @@
                     Visibility="Collapsed">
 
                 </CheckBox>
+                <CheckBox
+                    x:Uid="Settings_FlipHorizontal"
+                    Unchecked="SettingChanged_CheckedAsync"
+                    Checked="SettingChanged_CheckedAsync"
+                    IsChecked="{x:Bind FlipHorizontal,  Mode=TwoWay}"
+                        FontSize="15"
+                    CommandParameter="FlipHorizontal"
+                    >
+
+                </CheckBox>
+                <CheckBox
+                    x:Uid="Settings_FlipVertical"
+                    Unchecked="SettingChanged_CheckedAsync"
+                    Checked="SettingChanged_CheckedAsync"
+                    IsChecked="{x:Bind FlipVertical,  Mode=TwoWay}"
+                        FontSize="15"
+                    CommandParameter="FlipVertical"
+                    >
+
+                </CheckBox>
             </StackPanel>
             <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
 

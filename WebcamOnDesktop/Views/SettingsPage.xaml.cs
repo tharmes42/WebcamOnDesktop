@@ -36,13 +36,33 @@ namespace WebcamOnDesktop.Views
             set { Set(ref _versionDescription, value); }
         }
 
+        //setting hide background (experimental)
+        private bool _hideBackground = true;
+
         public bool HideBackground
         {
             get { return _hideBackground; }
             set { Set(ref _hideBackground, value); }
         }
 
-        private bool _hideBackground = true;
+        //setting horizontal flip
+        private bool _flipHorizontal;
+
+        public bool FlipHorizontal
+        {
+            get { return _flipHorizontal; }
+            set { Set(ref _flipHorizontal, value); }
+        }
+
+        //setting vertical flip
+        private bool _flipVertical;
+
+        public bool FlipVertical
+        {
+            get { return _flipVertical; }
+            set { Set(ref _flipVertical, value); }
+        }
+
 
         public SettingsPage()
         {
@@ -58,6 +78,8 @@ namespace WebcamOnDesktop.Views
         {
             VersionDescription = GetVersionDescription();
             HideBackground = await ApplicationData.Current.LocalSettings.ReadAsync<bool>("HideBackground");
+            FlipHorizontal = await ApplicationData.Current.LocalSettings.ReadAsync<bool>("FlipHorizontal");
+            FlipVertical = await ApplicationData.Current.LocalSettings.ReadAsync<bool>("FlipVertical");
 
             await Task.CompletedTask;
         }

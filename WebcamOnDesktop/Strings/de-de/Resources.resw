@@ -206,4 +206,10 @@
   <data name="Settings_HideBackground.Content" xml:space="preserve">
     <value>Hintergrund verbergen (experimentell)</value>
   </data>
+  <data name="Settings_FlipHorizontal.Content" xml:space="preserve">
+    <value>Horizontal spiegeln (links-rechts)</value>
+  </data>
+  <data name="Settings_FlipVertical.Content" xml:space="preserve">
+    <value>Vertikal spiegeln (oben-unten)</value>
+  </data>
 </root>
