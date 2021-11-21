@@ -212,4 +212,10 @@
   <data name="Settings_FlipVertical.Content" xml:space="preserve">
     <value>Mirror vertical (up-down)</value>
   </data>
+  <data name="Main_HintSettings.Text" xml:space="preserve">
+    <value>Hint: go to settings for additional video options</value>
+  </data>
+  <data name="Settings_Video.Text" xml:space="preserve">
+    <value>Video Settings</value>
+  </data>
 </root>

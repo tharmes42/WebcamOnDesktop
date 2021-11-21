@@ -212,4 +212,10 @@
   <data name="Settings_FlipVertical.Content" xml:space="preserve">
     <value>Vertikal spiegeln (oben-unten)</value>
   </data>
+  <data name="Main_HintSettings.Text" xml:space="preserve">
+    <value>Tipp: Gehe in die Einstellungen für weitere Video-Optionen</value>
+  </data>
+  <data name="Settings_Video.Text" xml:space="preserve">
+    <value>Video Einstellungen</value>
+  </data>
 </root>

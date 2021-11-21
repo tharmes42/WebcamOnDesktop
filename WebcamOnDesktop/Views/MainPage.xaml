@@ -24,10 +24,10 @@
                 <Button
                     x:Name="compactOverlayButton"
                     x:Uid="Shell_Camera"
-                    Margin="{StaticResource NoMargin}"
+                    Margin="{StaticResource SmallTopBottomMargin}"
                     Click="CompactOverlayButton_Click"
                     Style="{StaticResource TitleTextButtonStyle}" />
-
+                <TextBlock x:Uid="Main_HintSettings" />
             </StackPanel>
         </Grid>
     </Grid>
