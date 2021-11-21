@@ -1,7 +1,9 @@
 ﻿using System;
+using WebcamOnDesktop.Helpers;
 using WebcamOnDesktop.Services;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
+using Windows.Storage;
 
 namespace WebcamOnDesktop
 {
@@ -25,6 +27,20 @@ namespace WebcamOnDesktop
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
+            //set defaults if app is started for the first time or the app was previously killed in an unexpected way
+            /*if (args.PreviousExecutionState == ApplicationExecutionState.NotRunning ) 
+            {
+                //do some initial stuff
+            }
+            */
+            
+            //set initial values
+            //remark: it is the only way I know to detect if a setting has not been set before -> LocalSettings.ReadAsync does not return NULL :(
+            ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+            if (localSettings.Values["FlipHorizontal"] == null) { await ApplicationData.Current.LocalSettings.SaveAsync("FlipHorizontal", true.ToString()); }
+            if (localSettings.Values["FlipVertical"] == null) { await ApplicationData.Current.LocalSettings.SaveAsync("FlipVertical", false.ToString()); }
+                       
+
             if (!args.PrelaunchActivated)
             {
                 await ActivationService.ActivateAsync(args);

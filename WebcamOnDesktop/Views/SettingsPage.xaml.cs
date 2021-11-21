@@ -37,7 +37,7 @@ namespace WebcamOnDesktop.Views
         }
 
         //setting hide background (experimental)
-        private bool _hideBackground = true;
+        private bool _hideBackground = false;
 
         public bool HideBackground
         {
@@ -46,7 +46,7 @@ namespace WebcamOnDesktop.Views
         }
 
         //setting horizontal flip
-        private bool _flipHorizontal;
+        private bool _flipHorizontal = true;
 
         public bool FlipHorizontal
         {
@@ -55,7 +55,7 @@ namespace WebcamOnDesktop.Views
         }
 
         //setting vertical flip
-        private bool _flipVertical;
+        private bool _flipVertical = false;
 
         public bool FlipVertical
         {

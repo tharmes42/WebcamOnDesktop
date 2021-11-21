@@ -17,6 +17,7 @@ using System.Runtime.CompilerServices;
 using Windows.UI.ViewManagement;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
+using WebcamOnDesktop.Helpers;
 
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=234238 dokumentiert.
@@ -24,7 +25,7 @@ using Windows.UI.Core;
 namespace WebcamOnDesktop.Views
 {
     /// <summary>
-    /// Eine leere Seite, die eigenständig verwendet oder zu der innerhalb eines Rahmens navigiert werden kann.
+    /// CameraPage
     /// </summary>
     public sealed partial class CameraPage : Page, INotifyPropertyChanged
     {
@@ -37,6 +38,16 @@ namespace WebcamOnDesktop.Views
             base.OnNavigatedTo(e);
             Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
             cameraControl.CameraSelected = (string)localSettings?.Values["cameraSelected"];
+            /*
+            //if settings page has not been used yet, use these values as defaults
+            if (localSettings?.Values["FlipHorizontal"] == null) {
+                await Windows.Storage.ApplicationData.Current.LocalSettings.SaveAsync("FlipHorizontal", "True"); 
+            }
+            */
+            
+            cameraControl.FlipHorizontal = await Windows.Storage.ApplicationData.Current.LocalSettings.ReadAsync<bool>("FlipHorizontal");    
+            cameraControl.FlipVertical = await Windows.Storage.ApplicationData.Current.LocalSettings.ReadAsync<bool>("FlipVertical");
+
             await cameraControl.InitializeCameraAsync();
            
             if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))

@@ -30,6 +30,12 @@ namespace WebcamOnDesktop.Controls
         public static readonly DependencyProperty CanSwitchProperty =
             DependencyProperty.Register("CanSwitch", typeof(bool), typeof(CameraControl), new PropertyMetadata(false));
 
+        public static readonly DependencyProperty FlipHorizontalProperty =
+            DependencyProperty.Register("FlipHorizontal", typeof(bool), typeof(CameraControl), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty FlipVerticalProperty =
+            DependencyProperty.Register("FlipVertical", typeof(bool), typeof(CameraControl), new PropertyMetadata(false));
+
         public static readonly DependencyProperty PanelProperty =
             DependencyProperty.Register("Panel", typeof(Panel), typeof(CameraControl), new PropertyMetadata(Panel.Front, OnPanelChanged));
 
@@ -82,6 +88,19 @@ namespace WebcamOnDesktop.Controls
         {
             get { return (bool)GetValue(CanSwitchProperty); }
             set { SetValue(CanSwitchProperty, value); }
+        }
+
+
+        public bool FlipHorizontal
+        {
+            get { return (bool)GetValue(FlipHorizontalProperty); }
+            set { SetValue(FlipHorizontalProperty, value); }
+        }
+
+        public bool FlipVertical
+        {
+            get { return (bool)GetValue(FlipVerticalProperty); }
+            set { SetValue(FlipVerticalProperty, value); }
         }
 
         public Panel Panel
@@ -174,6 +193,7 @@ namespace WebcamOnDesktop.Controls
                         StreamingCaptureMode = StreamingCaptureMode.Video
                     });
 
+                    /*
                     if (Panel == Panel.Back)
                     {
                         mirroringPreview = false;
@@ -182,9 +202,10 @@ namespace WebcamOnDesktop.Controls
                     {
                         mirroringPreview = true;
                     }
-
+                    */
                     // TODO: enable this to mirror
                     //mirroringPreview = false;
+
 
                     IsInitialized = true;
                     CanSwitch = _cameraDevices?.Count > 1;
@@ -439,7 +460,8 @@ namespace WebcamOnDesktop.Controls
         private async Task StartPreviewAsync()
         {
             PreviewControl.Source = mediaCapture;
-            PreviewControl.FlowDirection = mirroringPreview ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+            PreviewControl.FlowDirection = FlipHorizontal ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+            
 
             if (mediaCapture != null)
             {
@@ -452,12 +474,15 @@ namespace WebcamOnDesktop.Controls
         private async Task SetPreviewRotationAsync()
         {
             displayOrientation = _displayInformation.CurrentOrientation;
-            int rotationDegrees = 0; //_displayOrientation.ToDegrees();
+            //int rotationDegrees = 0; //_displayOrientation.ToDegrees();
+            
+            int rotationDegrees = FlipVertical ? 180 : 0;
 
-            if (mirroringPreview)
+
+            /*if (mirroringPreview)
             {
                 rotationDegrees = (360 - rotationDegrees) % 360;
-            }
+            }*/
 
             if (mediaCapture != null)
             {
