@@ -9,12 +9,17 @@
     behaviors:NavigationViewHeaderBehavior.HeaderMode="Minimal"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
-
-    <Grid x:Name="ContentArea" Margin="{StaticResource NoMargin}">
-        <!--<TextBlock x:Uid="Camera_Headline" Style="{ThemeResource SubtitleTextBlockStyle}" />-->
-        <controls:CameraControl
+    <Canvas >
+        <CommandBar x:Name="PrimaryCommandBar" IsOpen="False" DefaultLabelPosition="Right" Canvas.ZIndex="100">
+            <!--<AppBarButton x:Name="addButton" Icon="Add" Label="Add" Click="OnElementClicked"/>-->
+            <AppBarButton x:Name="backButton" Icon="Back" Label="" Click="OnElementClicked"/>
+        </CommandBar>
+        <Canvas x:Name="ContentArea" Margin="{StaticResource NoMargin}">
+            <!--<TextBlock x:Uid="Camera_Headline" Style="{ThemeResource SubtitleTextBlockStyle}" />-->
+            <controls:CameraControl
             x:Name="cameraControl"
             x:Uid="CameraPage_CameraControl"
             Loaded="CameraControl_Loaded" />
-    </Grid>
+        </Canvas>
+    </Canvas>
 </Page>

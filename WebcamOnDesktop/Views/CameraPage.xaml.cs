@@ -68,7 +68,29 @@ namespace WebcamOnDesktop.Views
                 Window.Current.SetTitleBar(ContentArea);
                 
             }
-            
+            Window.Current.Activated += Current_Activated;
+
+        }
+
+       
+
+        private void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
+        {
+            if (e.WindowActivationState == CoreWindowActivationState.Deactivated)
+            {
+                PrimaryCommandBar.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                PrimaryCommandBar.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void OnElementClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            var selectedFlyoutItem = sender as AppBarButton;
+            //SelectedOptionText.Text = "You clicked: " + (sender as AppBarButton).Label;
+            PrimaryCommandBar.Visibility = Visibility.Collapsed;
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)
