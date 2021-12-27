@@ -10,11 +10,18 @@
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
-    <Grid x:Name="ContentArea" Margin="{StaticResource NoMargin}">
-        <!--<TextBlock x:Uid="Camera_Headline" Style="{ThemeResource SubtitleTextBlockStyle}" />-->
-        <controls:CameraControl
+    <Grid x:Name="SuperContentArea">
+        <CommandBar x:Name="PrimaryCommandBar" IsOpen="False" DefaultLabelPosition="Collapsed" Canvas.ZIndex="10" FlowDirection="RightToLeft" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <!--<AppBarButton x:Name="addButton" Icon="Add" Label="Add" Click="OnElementClicked"/>-->
+            <AppBarButton x:Name="backButton" Icon="Back" Label="" Click="OnElementClicked" Background="WhiteSmoke"/>
+            
+        </CommandBar>
+        <Grid x:Name="ContentArea" Margin="{StaticResource NoMargin}">
+            <!--<TextBlock x:Uid="Camera_Headline" Style="{ThemeResource SubtitleTextBlockStyle}" />-->
+            <controls:CameraControl
             x:Name="cameraControl"
             x:Uid="CameraPage_CameraControl"
             Loaded="CameraControl_Loaded" />
+        </Grid>
     </Grid>
 </Page>

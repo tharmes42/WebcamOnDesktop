@@ -22,10 +22,10 @@
         ItemInvoked="OnItemInvoked"
         PaneDisplayMode="LeftCompact"
         AlwaysShowHeader="True"
-        Background="{ThemeResource AppMaxAcrylicBackgroundBrush}"
         SelectedItem="{x:Bind Selected, Mode=OneWay}">
         <!-- PaneDisplayMode="LeftCompact" -->
         <!--  Background="{ThemeResource SystemControlBackgroundAltHighBrush}">  -->
+        <!-- Background="{ThemeResource AppMaxAcrylicBackgroundBrush}" -->
         <winui:NavigationView.MenuItems>
             <!--
                 TODO WTS: Change the symbols for each item as appropriate for your app

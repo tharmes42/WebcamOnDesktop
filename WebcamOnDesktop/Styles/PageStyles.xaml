@@ -16,8 +16,8 @@
 
 
     <Style x:Key="PageStyle" TargetType="Page">
-        <!--<Setter Property="Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}" />-->
-        <Setter Property="Background" Value="{ThemeResource AppMaxAcrylicBackgroundBrush}" />
+        <Setter Property="Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
+        <!--<Setter Property="Background" Value="{ThemeResource AppMaxAcrylicBackgroundBrush}" />-->
     </Style>
 
 

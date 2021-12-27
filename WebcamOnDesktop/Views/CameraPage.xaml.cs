@@ -18,6 +18,9 @@ using Windows.UI.ViewManagement;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
 using WebcamOnDesktop.Helpers;
+using System.Threading.Tasks;
+using WebcamOnDesktop.Services;
+using Windows.UI.Xaml.Media.Animation;
 
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=234238 dokumentiert.
@@ -68,13 +71,41 @@ namespace WebcamOnDesktop.Views
                 Window.Current.SetTitleBar(ContentArea);
                 
             }
+            Window.Current.Activated += Current_Activated;
             
+
+        }
+
+       
+
+        private async void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
+        {
+            if (e.WindowActivationState == CoreWindowActivationState.Deactivated)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(1600));
+                PrimaryCommandBar.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                PrimaryCommandBar.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void OnElementClicked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            var selectedFlyoutItem = sender as AppBarButton;
+            //SelectedOptionText.Text = "You clicked: " + (sender as AppBarButton).Label;
+            //PrimaryCommandBar.Visibility = Visibility.Collapsed;
+            NavigationService.Navigate(typeof(MainPage), null, new SuppressNavigationTransitionInfo());
+            //NavigationService.GoBack();
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
             await cameraControl.CleanupCameraAsync();
+            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+            //Window.Current.SetTitleBar(null);
             bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.Default);
         }
 

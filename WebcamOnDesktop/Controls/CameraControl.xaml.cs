@@ -57,7 +57,6 @@ namespace WebcamOnDesktop.Controls
         private readonly SimpleOrientationSensor _orientationSensor = SimpleOrientationSensor.GetDefault();
         private MediaCapture mediaCapture;
         private bool isPreviewing;
-        private bool mirroringPreview;
         private SimpleOrientation deviceOrientation = SimpleOrientation.NotRotated;
         private DisplayOrientations displayOrientation = DisplayOrientations.Portrait;
         private DeviceInformationCollection _cameraDevices;
@@ -212,9 +211,15 @@ namespace WebcamOnDesktop.Controls
                     RegisterOrientationEventHandlers();
                     await StartPreviewAsync();
 
+                    /*
+                     *  use this for auto-crop feature (based on facetracking example in the microsoft library)
+                     *  
+                     */
+                    /*
                     // Run the timer at 66ms, which is approximately 15 frames per second.
                     TimeSpan timerInterval = TimeSpan.FromMilliseconds(66);
                     this.frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(ProcessCurrentVideoFrame, timerInterval);
+                    */
 
                     videoProperties = (VideoEncodingProperties)mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
 
