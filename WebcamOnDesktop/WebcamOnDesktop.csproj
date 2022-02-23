@@ -27,6 +27,8 @@
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <PackageCertificateKeyFile />
+	<AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
+	<AppxDefaultResourceQualifiers>Language=en;de;kr</AppxDefaultResourceQualifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -222,6 +224,7 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <PRIResource Include="Strings\de-de\Resources.resw" />
+    <PRIResource Include="Strings\ko-kr\Resources.resw" />
     <None Include="webcamondesktop_private_key_develop.pfx" />
   </ItemGroup>
   <ItemGroup>
