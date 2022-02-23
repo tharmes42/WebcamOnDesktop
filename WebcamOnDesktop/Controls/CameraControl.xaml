@@ -20,6 +20,7 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             FontSize="18"
-            TextWrapping="WrapWholeWords" />
+            TextWrapping="WrapWholeWords" 
+            Canvas.ZIndex="200"/>
     </Grid>
 </UserControl>

@@ -18,6 +18,7 @@ using Windows.Media.FaceAnalysis;
 using Windows.Media.MediaProperties;
 using Windows.System.Threading;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
@@ -35,6 +36,9 @@ namespace WebcamOnDesktop.Controls
 
         public static readonly DependencyProperty FlipVerticalProperty =
             DependencyProperty.Register("FlipVertical", typeof(bool), typeof(CameraControl), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty FullResProperty =
+            DependencyProperty.Register("FullRes", typeof(bool), typeof(CameraControl), new PropertyMetadata(false));
 
         public static readonly DependencyProperty PanelProperty =
             DependencyProperty.Register("Panel", typeof(Panel), typeof(CameraControl), new PropertyMetadata(Panel.Front, OnPanelChanged));
@@ -67,20 +71,6 @@ namespace WebcamOnDesktop.Controls
         /// </summary>
         private VideoEncodingProperties videoProperties;
 
-        /// <summary>
-        /// References a FaceTracker instance.
-        /// </summary>
-        private FaceTracker faceTracker;
-
-        /// <summary>
-        /// A periodic timer to execute FaceTracker on preview frames
-        /// </summary>
-        private ThreadPoolTimer frameProcessingTimer;
-
-        /// <summary>
-        /// Flag to ensure FaceTracking logic only executes one at a time
-        /// </summary>
-        private int busy = 0;
 
 
         public bool CanSwitch
@@ -100,6 +90,12 @@ namespace WebcamOnDesktop.Controls
         {
             get { return (bool)GetValue(FlipVerticalProperty); }
             set { SetValue(FlipVerticalProperty, value); }
+        }
+
+        public bool FullRes
+        {
+            get { return (bool)GetValue(FullResProperty); }
+            set { SetValue(FullResProperty, value); }
         }
 
         public Panel Panel
@@ -146,7 +142,6 @@ namespace WebcamOnDesktop.Controls
 
 
         /// <summary>
-        /// Creates the FaceTracker object which we will use for face detection and tracking.
         /// Initializes a new MediaCapture instance and starts the Preview streaming to the CamPreview UI element.
         /// </summary>
         /// <returns>Async Task object returning true if initialization and streaming were successful and false if an exception occurred.</returns>
@@ -154,7 +149,6 @@ namespace WebcamOnDesktop.Controls
         {
             bool successful = false;
 
-            faceTracker = await FaceTracker.CreateAsync();
 
             try
             {
@@ -192,53 +186,46 @@ namespace WebcamOnDesktop.Controls
                         StreamingCaptureMode = StreamingCaptureMode.Video
                     });
 
-                    /*
-                    if (Panel == Panel.Back)
-                    {
-                        mirroringPreview = false;
-                    }
-                    else
-                    {
-                        mirroringPreview = true;
-                    }
-                    */
-                    // TODO: enable this to mirror
-                    //mirroringPreview = false;
-
 
                     IsInitialized = true;
                     CanSwitch = _cameraDevices?.Count > 1;
                     RegisterOrientationEventHandlers();
                     await StartPreviewAsync();
 
-                    /*
-                     *  use this for auto-crop feature (based on facetracking example in the microsoft library)
-                     *  
-                     */
-                    /*
-                    // Run the timer at 66ms, which is approximately 15 frames per second.
-                    TimeSpan timerInterval = TimeSpan.FromMilliseconds(66);
-                    this.frameProcessingTimer = ThreadPoolTimer.CreatePeriodicTimer(ProcessCurrentVideoFrame, timerInterval);
-                    */
+                    //if FullRes then go into full resolution mode
+                    //TODO: remove bool assignment, replace with option in settings
+                    FullRes = false;
+                    if (FullRes)
+                    {
+                        // Query all properties of the device
+                        IEnumerable<StreamResolution> allProperties = mediaCapture.VideoDeviceController.GetAvailableMediaStreamProperties(MediaStreamType.VideoPreview).Select(x => new StreamResolution(x));
+
+                        // Order them by resolution then frame rate
+                        allProperties = allProperties.OrderByDescending(x => x.Height * x.Width).ThenByDescending(x => x.FrameRate);
+
+                        // Populate the combo box with the entries
+                        foreach (var property in allProperties)
+                        {
+                            /*ComboBoxItem comboBoxItem = new ComboBoxItem();
+                            comboBoxItem.Content = property.GetFriendlyName();
+                            comboBoxItem.Tag = property;
+                            CameraSettingsComboBox.Items.Add(comboBoxItem);*/
+                            //var encodingProperties = (selectedItem.Tag as StreamResolution).EncodingProperties;
+                            //TODO: filter for 30fps and 1920x1080
+                            string resolution = property.GetFriendlyName();
+                            errorMessage.Text = resolution;
+                            if (resolution.Contains("1920")){
+                                var encodingProperties = (property as StreamResolution).EncodingProperties;
+                                await SetMediaStreamPropertiesAsync(MediaStreamType.VideoPreview, encodingProperties);
+                                break;
+                            }
+                        }
+                        
+                    }
+
 
                     videoProperties = (VideoEncodingProperties)mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview);
 
-                    // TODO: export this information to provide correct aspectratio
-                    //double cameraWidth = videoProps.Width;
-                    //double cameraHeight = videoProps.Height;
-
-                    //double previewOutputWidth = PreviewControl.ActualWidth;
-                    //double previewOutputHeight = PreviewControl.ActualHeight;
-
-                    //double cameraRatio = cameraWidth / cameraHeight;
-                    //double previewOutputRatio = previewOutputWidth / previewOutputHeight;
-
-                    //double actualWidth = (cameraRatio <= previewOutputRatio) ?
-                    //    previewOutputHeight * cameraRatio
-                    //    : previewOutputWidth;
-                    //double actualHeight = (cameraRatio <= previewOutputRatio) ?
-                    //    previewOutputHeight
-                    //    : previewOutputWidth / cameraRatio;
                 }
                 successful = true;
             }
@@ -263,125 +250,21 @@ namespace WebcamOnDesktop.Controls
 
 
         /// <summary>
-        /// This method is invoked by a ThreadPoolTimer to execute the FaceTracker and Visualization logic.
+        /// Sets encoding properties on a camera stream. Ensures CaptureElement and preview stream are stopped before setting properties.
         /// </summary>
-        /// <param name="timer">Timer object invoking this call</param>
-        private async void ProcessCurrentVideoFrame(ThreadPoolTimer timer)
+        public async Task SetMediaStreamPropertiesAsync(MediaStreamType streamType, IMediaEncodingProperties encodingProperties)
         {
+            // Stop preview and unlink the CaptureElement from the MediaCapture object
+            await mediaCapture.StopPreviewAsync();
+            PreviewControl.Source = null;
 
-            // If busy is already 1, then the previous frame is still being processed,
-            // in which case we skip the current frame.
-            if (Interlocked.CompareExchange(ref busy, 1, 0) != 0)
-            {
-                return;
-            }
+            // Apply desired stream properties
+            await mediaCapture.VideoDeviceController.SetMediaStreamPropertiesAsync(MediaStreamType.VideoPreview, encodingProperties);
 
-            await ProcessCurrentVideoFrameAsync();
-            Interlocked.Exchange(ref busy, 0);
+            // Recreate the CaptureElement pipeline and restart the preview
+            PreviewControl.Source = mediaCapture;
+            await mediaCapture.StartPreviewAsync();
         }
-
-        /// <summary>
-        /// This method is called to execute the FaceTracker and Visualization logic at each timer tick.
-        /// </summary>
-        /// <remarks>
-        /// Keep in mind this method is called from a Timer and not synchronized with the camera stream. Also, the processing time of FaceTracker
-        /// will vary depending on the size of each frame and the number of faces being tracked. That is, a large image with several tracked faces may
-        /// take longer to process.
-        /// </remarks>
-        private async Task ProcessCurrentVideoFrameAsync()
-        {
-            // Create a VideoFrame object specifying the pixel format we want our capture image to be (NV12 bitmap in this case).
-            // GetPreviewFrame will convert the native webcam frame into this format.
-            const BitmapPixelFormat InputPixelFormat = BitmapPixelFormat.Nv12;
-            using (VideoFrame previewFrame = new VideoFrame(InputPixelFormat, (int)this.videoProperties.Width, (int)this.videoProperties.Height))
-            {
-                try
-                {
-                    await this.mediaCapture.GetPreviewFrameAsync(previewFrame);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    // Lost access to the camera.
-                    //AbandonStreaming();
-                    return;
-                }
-                catch (Exception)
-                {
-                    //if we set an error text here, we get RPC_E_WRONG_THREAD
-                    //errorMessage.Text = "PreviewFrame with format '{InputPixelFormat}' is not supported by your Webcam";
-                    return;
-                }
-
-                // The returned VideoFrame should be in the supported NV12 format but we need to verify this.
-                if (!FaceDetector.IsBitmapPixelFormatSupported(previewFrame.SoftwareBitmap.BitmapPixelFormat))
-                {
-                    errorMessage.Text = "PixelFormat '{previewFrame.SoftwareBitmap.BitmapPixelFormat}' is not supported by FaceDetector";
-                    return;
-                }
-
-                IList<DetectedFace> faces;
-                try
-                {
-                    faces = await this.faceTracker.ProcessNextFrameAsync(previewFrame);
-                }
-                catch (Exception ex)
-                {
-                    errorMessage.Text = ex.ToString();
-                    return;
-                }
-
-                // Create our visualization using the frame dimensions and face results but run it on the UI thread.
-                var previewFrameSize = new Windows.Foundation.Size(previewFrame.SoftwareBitmap.PixelWidth, previewFrame.SoftwareBitmap.PixelHeight);
-                var ignored = this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    this.SetupVisualization(previewFrameSize, faces);
-                });
-            }
-        }
-
-        /// <summary>
-        /// Takes the webcam image and FaceTracker results and assembles the visualization onto the Canvas.
-        /// </summary>
-        /// <param name="framePizelSize">Width and height (in pixels) of the video capture frame</param>
-        /// <param name="foundFaces">List of detected faces; output from FaceTracker</param>
-        private void SetupVisualization(Windows.Foundation.Size framePixelSize, IList<DetectedFace> foundFaces)
-        {
-            this.VisualizationCanvas.Children.Clear();
-
-            if (framePixelSize.Width != 0.0 && framePixelSize.Height != 0.0)
-            {
-                double widthScale = this.VisualizationCanvas.ActualWidth / framePixelSize.Width;
-                double heightScale = this.VisualizationCanvas.ActualHeight / framePixelSize.Height;
-
-                foreach (DetectedFace face in foundFaces)
-                {
-
-                    //double mirrorX = (face.FaceBox.X * widthScale) > (this.VisualizationCanvas.ActualWidth / 2) ? (face.FaceBox.X * widthScale) - (this.VisualizationCanvas.ActualWidth / 2) : (face.FaceBox.X * widthScale) + (this.VisualizationCanvas.ActualWidth / 2);
-
-                    // Create a rectangle element for displaying the face box but since we're using a Canvas
-                    // we must scale the rectangles according to the frames's actual size.
-                    Rectangle box = new Rectangle()
-                    {
-                        Width = face.FaceBox.Width * widthScale,
-                        Height = face.FaceBox.Height * heightScale,
-                        //Margin = new Thickness(face.FaceBox.X * widthScale, face.FaceBox.Y * heightScale, 0, 0),
-                        Margin = new Thickness(face.FaceBox.X * widthScale, face.FaceBox.Y * heightScale, 0, 0),
-                        Stroke = new SolidColorBrush(Windows.UI.Colors.Blue),
-                        StrokeThickness = 2,
-                        Fill = new SolidColorBrush(Windows.UI.Colors.Transparent)
-                        //Style = this.Resources["HighlightedFaceBoxStyle"] as Style
-                        //Style = new Style() { TargetType = Rectangle, Setters = }
-                    };
-                    //box.RenderTransform = new ScaleTransform() { ScaleX = -1, CenterX = 160 , CenterY = 0 };
-                    //box.RenderTransform = new RotateTransform() { Angle=180, CenterX = 160, CenterY = 120 };
-                    
-                    //TODO enable this to draw the box
-                    //this.VisualizationCanvas.Children.Add(box);
-                }
-            }
-        }
-
-
 
         public async Task CleanupCameraAsync()
         {
