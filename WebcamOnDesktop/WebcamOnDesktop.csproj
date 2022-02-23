@@ -136,6 +136,7 @@
     <Compile Include="Controls\CameraControl.xaml.cs">
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\StreamResolution.cs" />
     <Compile Include="Helpers\EnumToBooleanConverter.cs" />
     <Compile Include="Helpers\Json.cs" />
     <Compile Include="Helpers\NavHelper.cs" />
