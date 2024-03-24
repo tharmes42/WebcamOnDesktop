@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel;
-using Windows.UI.Xaml.Controls;
 using System.Runtime.CompilerServices;
-
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using System.Linq;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Navigation;
 using WebcamOnDesktop.Controls;
-using Windows.UI.ViewManagement;
-using Windows.Foundation;
 using WebcamOnDesktop.Services;
+using Windows.Foundation;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Navigation;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -23,7 +18,7 @@ namespace WebcamOnDesktop.Views
     /// </summary>
     public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
-        ObservableCollection<Camera> cameras = new ObservableCollection<Camera>();
+        //ObservableCollection<Camera> cameras = new ObservableCollection<Camera>();
         public MainPage()
         {
             InitializeComponent();
@@ -41,9 +36,9 @@ namespace WebcamOnDesktop.Views
             // Set focus so the first item of the listview has focus
             // instead of some item which is not visible on page load
             CameraListView.Focus(FocusState.Programmatic);
-  
+
         }
-        
+
 
 
         private void CompactOverlayButton_Click(object sender, RoutedEventArgs e)
@@ -62,7 +57,7 @@ namespace WebcamOnDesktop.Views
             //save name of camera (this is used by target page CameraPage, note: is it dirty to use localSettings as alternative to a mvvm pattern?
             string cameraSelected = (string)localSettings?.Values["cameraSelected"];
             int cameraSelectedIndex = 0;
-            for (int i=0; i<CameraListView.Items.Count; i++)
+            for (int i = 0; i < CameraListView.Items.Count; i++)
             {
                 if (CameraListView.Items[i].ToString() == cameraSelected)
                 {
@@ -70,9 +65,9 @@ namespace WebcamOnDesktop.Views
                     break;
                 }
             }
-            
+
             CameraListView.SelectedIndex = cameraSelectedIndex;
-            
+
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -80,8 +75,8 @@ namespace WebcamOnDesktop.Views
             base.OnNavigatedFrom(e);
             Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
             //preselect camera if it was previously selected
-            localSettings.Values["cameraSelected"] =  CameraListView.SelectedItem?.ToString();
-            
+            localSettings.Values["cameraSelected"] = CameraListView.SelectedItem?.ToString();
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

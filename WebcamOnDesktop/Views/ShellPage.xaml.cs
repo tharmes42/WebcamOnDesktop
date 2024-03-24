@@ -12,7 +12,6 @@ using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 using WinUI = Microsoft.UI.Xaml.Controls;
@@ -93,7 +92,7 @@ namespace WebcamOnDesktop.Views
                 Selected = selectedItem;
             }
         }
-        
+
 
         private WinUI.NavigationViewItem GetSelectedItem(IEnumerable<object> menuItems, Type pageType)
         {
@@ -158,7 +157,7 @@ namespace WebcamOnDesktop.Views
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void Set<T>(ref T storage, T value, [CallerMemberName]string propertyName = null)
+        private void Set<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             if (Equals(storage, value))
             {
