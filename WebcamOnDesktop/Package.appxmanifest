@@ -9,7 +9,7 @@
   <Identity
     Name="62302TobiasHarmes.WebcamOnDesktop"
     Publisher="CN=0A0E56E0-0A15-4866-8B32-463E5D3BAC60"
-    Version="1.0.9.0" />
+    Version="1.0.10.0" />
 
   <mp:PhoneIdentity PhoneProductId="0f14a7d9-3b41-4b43-914c-934b3e08066b" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
