@@ -1,26 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using System.Runtime.CompilerServices;
-using Windows.UI.ViewManagement;
+using System.Threading.Tasks;
+using WebcamOnDesktop.Helpers;
+using WebcamOnDesktop.Services;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
-using WebcamOnDesktop.Helpers;
-using System.Threading.Tasks;
-using WebcamOnDesktop.Services;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Navigation;
 
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=234238 dokumentiert.
@@ -47,12 +37,12 @@ namespace WebcamOnDesktop.Views
                 await Windows.Storage.ApplicationData.Current.LocalSettings.SaveAsync("FlipHorizontal", "True"); 
             }
             */
-            
-            cameraControl.FlipHorizontal = await Windows.Storage.ApplicationData.Current.LocalSettings.ReadAsync<bool>("FlipHorizontal");    
+
+            cameraControl.FlipHorizontal = await Windows.Storage.ApplicationData.Current.LocalSettings.ReadAsync<bool>("FlipHorizontal");
             cameraControl.FlipVertical = await Windows.Storage.ApplicationData.Current.LocalSettings.ReadAsync<bool>("FlipVertical");
 
             await cameraControl.InitializeCameraAsync();
-           
+
             if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
             {
                 //bool modeSwitched = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
@@ -69,14 +59,14 @@ namespace WebcamOnDesktop.Views
                 CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
                 //make whole window dragable
                 Window.Current.SetTitleBar(ContentArea);
-                
+
             }
             Window.Current.Activated += Current_Activated;
-            
+
 
         }
 
-       
+
 
         private async void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
         {
@@ -129,6 +119,6 @@ namespace WebcamOnDesktop.Views
 
         }
 
-    
+
     }
 }

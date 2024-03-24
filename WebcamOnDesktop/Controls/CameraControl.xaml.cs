@@ -1,27 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 using WebcamOnDesktop.Helpers;
-using WebcamOnDesktop.Views;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Sensors;
 using Windows.Foundation;
 using Windows.Graphics.Display;
-using Windows.Graphics.Imaging;
-using Windows.Media;
 using Windows.Media.Capture;
-using Windows.Media.FaceAnalysis;
 using Windows.Media.MediaProperties;
-using Windows.System.Threading;
 using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
 
 namespace WebcamOnDesktop.Controls
 {
@@ -156,6 +148,7 @@ namespace WebcamOnDesktop.Controls
                 {
                     mediaCapture = new MediaCapture();
                     mediaCapture.Failed += MediaCapture_Failed;
+                    mediaCapture.CameraStreamStateChanged += MediaCapture_CameraStreamStateChanged;
 
                     _cameraDevices = await DeviceInformation.FindAllAsync(DeviceClass.VideoCapture);
                     if (_cameraDevices == null || !_cameraDevices.Any())
@@ -214,13 +207,14 @@ namespace WebcamOnDesktop.Controls
                             //TODO: filter for 30fps and 1920x1080
                             string resolution = property.GetFriendlyName();
                             errorMessage.Text = resolution;
-                            if (resolution.Contains("1920")){
+                            if (resolution.Contains("1920"))
+                            {
                                 var encodingProperties = (property as StreamResolution).EncodingProperties;
                                 await SetMediaStreamPropertiesAsync(MediaStreamType.VideoPreview, encodingProperties);
                                 break;
                             }
                         }
-                        
+
                     }
 
 
@@ -247,6 +241,8 @@ namespace WebcamOnDesktop.Controls
             }
             return successful;
         }
+
+
 
 
         /// <summary>
@@ -339,17 +335,33 @@ namespace WebcamOnDesktop.Controls
 
         private void MediaCapture_Failed(MediaCapture sender, MediaCaptureFailedEventArgs errorEventArgs)
         {
+            Debug.WriteLine("MediaCapture_Failed |" + errorEventArgs.ToString());
             Task.Run(async () => await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 await CleanupCameraAsync();
             }));
         }
 
+        /// <summary>
+        /// Invoked if CameraStreamState changes, tries to restart camera if stream was shut down
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void MediaCapture_CameraStreamStateChanged(MediaCapture sender, object args)
+        {
+            if (sender.CameraStreamState == Windows.Media.Devices.CameraStreamState.Shutdown)
+            {
+                //try to restart the camera, because of unexpected shutdown
+                Debug.WriteLine("MediaCapture_CameraStreamStateChanged | Unexpected Shutdown, trying to restart | CameraStreamState: " + sender.CameraStreamState);
+                CleanAndInitialize();
+            }
+        }
+
         private async Task StartPreviewAsync()
         {
             PreviewControl.Source = mediaCapture;
             PreviewControl.FlowDirection = FlipHorizontal ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
-            
+
 
             if (mediaCapture != null)
             {
@@ -363,7 +375,7 @@ namespace WebcamOnDesktop.Controls
         {
             displayOrientation = _displayInformation.CurrentOrientation;
             //int rotationDegrees = 0; //_displayOrientation.ToDegrees();
-            
+
             int rotationDegrees = FlipVertical ? 180 : 0;
 
 
@@ -436,39 +448,39 @@ namespace WebcamOnDesktop.Controls
     }
 
 
-    public class Camera
-    {
-        #region Properties
-        //public string Name => FirstName + " " + LastName;
-        public string Label;
-        #endregion
-
-        public Camera(string label)
+    /*    public class Camera
         {
-            Label = label;
+            #region Properties
+            //public string Name => FirstName + " " + LastName;
+            public string Label;
+            #endregion
 
-        }
-
-
-        public static async Task<ObservableCollection<Camera>> GetCamerasAsync()
-        {
-            /*StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Contacts.txt"));
-            IList<string> lines = await FileIO.ReadLinesAsync(file);
-            */
-            IList<string> lines = new List<string>(new string[] { "element1.1", "element1.2", "element1.3", "element2.1", "element2.2", "element2.3" });
-
-            ObservableCollection<Camera> cameras = new ObservableCollection<Camera>();
-
-            for (int i = 0; i < lines.Count; i += 3)
+            public Camera(string label)
             {
-                cameras.Add(new Camera(lines[i]));
+                Label = label;
+
             }
 
-            return cameras;
-        }
+
+            public static async Task<ObservableCollection<Camera>> GetCamerasAsync()
+            {
+                StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Contacts.txt"));
+                IList<string> lines = await FileIO.ReadLinesAsync(file);
+
+                IList<string> lines = new List<string>(new string[] { "element1.1", "element1.2", "element1.3", "element2.1", "element2.2", "element2.3" });
+
+                ObservableCollection<Camera> cameras = new ObservableCollection<Camera>();
+
+                for (int i = 0; i < lines.Count; i += 3)
+                {
+                    cameras.Add(new Camera(lines[i]));
+                }
+
+                return cameras;
+            }
 
 
-    }
+        }*/
 
 
 }
