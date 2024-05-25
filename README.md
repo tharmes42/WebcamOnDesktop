@@ -2,7 +2,7 @@
 Your webcam on desktop as a free floating always on top window, like the picture-in-picture video mode (pip mode) known from iOS or YouTube. Perfect for using it in presentations, recordings or webinars. It stays on top even in fullscreen mode (e.g. presentation mode in Powerpoint).
 
 ## Download
-Get sources at the [Release page](https://github.com/tharmes42/WebcamOnDesktop/releases/latest)
+Get app and sources at the [Release page](https://github.com/tharmes42/WebcamOnDesktop/releases/latest)
 or ~~Download [the windows app at Microsoft Store](https://www.microsoft.com/store/productId/9NWR1L09C54Z)~~
 
 **Note**: Microsoft has removed my app from their store with following reason:
