@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller
+	Uri="https://github.com/tharmes42/WebcamOnDesktop/Release/WebcamOnDesktop.appinstaller/WebcamOnDesktop.appinstaller"
+	Version="1.0.10.0" xmlns="http://schemas.microsoft.com/appx/appinstaller/2017/2">
+	<MainBundle
+		Name="62302TobiasHarmes.WebcamOnDesktop"
+		Version="1.0.10.0"
+		Publisher="CN=0A0E56E0-0A15-4866-8B32-463E5D3BAC60"
+		Uri="https://github.com/tharmes42/WebcamOnDesktop/Release/WebcamOnDesktop.appinstaller/WebcamOnDesktop_1.0.10.0_Test/WebcamOnDesktop_1.0.10.0_x64.msixbundle" />
+	<Dependencies>
+		<Package
+			Name="Microsoft.UI.Xaml.2.5"
+			Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+			ProcessorArchitecture="x64"
+			Uri="https://github.com/tharmes42/WebcamOnDesktop/Release/WebcamOnDesktop.appinstaller/WebcamOnDesktop_1.0.10.0_Test/Dependencies/x64/Microsoft.UI.Xaml.2.5.appx"
+			Version="2.52012.2002.0" />
+		<Package
+			Name="Microsoft.NET.Native.Framework.2.2"
+			Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+			ProcessorArchitecture="x64"
+			Uri="https://github.com/tharmes42/WebcamOnDesktop/Release/WebcamOnDesktop.appinstaller/WebcamOnDesktop_1.0.10.0_Test/Dependencies/x64/Microsoft.NET.Native.Framework.2.2.appx"
+			Version="2.2.29512.0" />
+		<Package
+			Name="Microsoft.NET.Native.Runtime.2.2"
+			Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+			ProcessorArchitecture="x64"
+			Uri="https://github.com/tharmes42/WebcamOnDesktop/Release/WebcamOnDesktop.appinstaller/WebcamOnDesktop_1.0.10.0_Test/Dependencies/x64/Microsoft.NET.Native.Runtime.2.2.appx"
+			Version="2.2.28604.0" />
+		<Package
+			Name="Microsoft.VCLibs.140.00"
+			Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+			ProcessorArchitecture="x64"
+			Uri="https://github.com/tharmes42/WebcamOnDesktop/Release/WebcamOnDesktop.appinstaller/WebcamOnDesktop_1.0.10.0_Test/Dependencies/x64/Microsoft.VCLibs.x64.14.00.appx"
+			Version="14.0.30704.0" />
+	</Dependencies>
+	<UpdateSettings>
+		<OnLaunch
+			HoursBetweenUpdateChecks="168" />
+	</UpdateSettings>
+</AppInstaller>
